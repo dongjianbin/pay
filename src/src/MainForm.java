@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -73,6 +74,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Vector;
 
 import javax.swing.JTable;
@@ -88,6 +90,8 @@ import org.sqlite.JDBC;
 
 import javax.swing.JList;
 
+import src.JAutoCompleteComboBox;
+
 // The main program class
 
 public class MainForm extends JFrame implements ActionListener {
@@ -101,6 +105,7 @@ public class MainForm extends JFrame implements ActionListener {
 			scroll_Main_Right_Btm;
 	private Vector content, defaultcontent, defaultgoodslist;
 	private JTable defaulttable;
+	private JPanel panel_Main_Left_Top_Left;
 
 	public MainForm() {
 		this.initForm();
@@ -203,13 +208,11 @@ public class MainForm extends JFrame implements ActionListener {
 		split_Main_Left_Top.setEnabled(false);
 		panel_Main_Left_Top.add(split_Main_Left_Top);
 
-		JPanel panel_Main_Left_Top_Left = new JPanel();
+		panel_Main_Left_Top_Left = new JPanel();
 		split_Main_Left_Top.setLeftComponent(panel_Main_Left_Top_Left);
 		panel_Main_Left_Top_Left.setLayout(new GridLayout(1, 1, 0, 0));
 
-		text_GoodsSearch = new JTextField();
-		text_GoodsSearch.setColumns(1);
-		panel_Main_Left_Top_Left.add(text_GoodsSearch);
+		initGoodsSearchList();
 
 		JPanel panel_Main_Left_TOP_Right = new JPanel();
 		split_Main_Left_Top.setRightComponent(panel_Main_Left_TOP_Right);
@@ -521,6 +524,26 @@ public class MainForm extends JFrame implements ActionListener {
 
 		addHandler();
 
+	}
+	
+	/*
+	 * Init goodsSearch List
+	 * 
+	 * 
+	 * 
+	 * */
+	void initGoodsSearchList(){
+	    Object[] items = new Object[] {
+	            "zzz","zba","aab","abc", "aab","dfg","aba", "hpp", "pp", "hlp"};
+	        //排序内容
+	        //java.util.ArrayList list = new java.util.ArrayList(Arrays.asList(items));
+	        //Collections.sort(list);
+	        //JComboBox cmb = new JAutoCompleteComboBox(list.toArray());
+	        Arrays.sort(items);
+	        JComboBox mJComboBox = new JAutoCompleteComboBox(items);
+	        mJComboBox.setSelectedIndex(-1);
+			panel_Main_Left_Top_Left.add(mJComboBox);
+		
 	}
 
 	void initDefaultFrame() {
