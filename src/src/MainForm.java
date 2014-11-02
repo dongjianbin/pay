@@ -549,58 +549,9 @@ public class MainForm extends JFrame implements ActionListener {
         mJComboBox.setSelectedIndex(-1);
 
 		panel_Main_Left_Top_Left.add(mJComboBox);
-		searchTextField = (JTextField) mJComboBox.getEditor().getEditorComponent();
-		mDocument = searchTextField.getDocument();
-		mDefaultComboBoxModel.addElement("aaaa");
-		mDocument.addDocumentListener(new DocumentListener(){
-            public void insertUpdate(DocumentEvent e) {
-                System.out.println("insertUpdate");
-//                changeGoodsSearchList(searchTextField.getText());
-                String m =searchTextField.getText();
-        		System.out.println("Input String is : "+ m);
-        		mJComboBox.hidePopup();
-        		searchgoodslist.removeAllElements();
-        		if(m.length()!=0){
-        			for(int i=0; i <allgoodslist.size(); i++){
-        				String s = allgoodslist.get(i).toString();
-        				System.out.println("allgoodslist string is :" +s);
-        				if(s.toLowerCase().indexOf(m)!=-1){
-        					System.out.println("include :" + m);
-        					searchgoodslist.addElement(allgoodslist.get(i));
-        				}
-        				
-        			}
-        			mJComboBox.showPopup();
-        		}
-//              changeGoodsSearchList("acc");
-
-                
-            }
-            public void removeUpdate(DocumentEvent e) {
-                System.out.println("removeUpdate");
-//              changeGoodsSearchList(searchTextField.getText());
-              String m =searchTextField.getText();
-      		System.out.println("Input String is : "+ m);
-      		mJComboBox.hidePopup();
-      		searchgoodslist.removeAllElements();
-      		if(m.length()!=0){
-      			for(int i=0; i <allgoodslist.size(); i++){
-      				String s = allgoodslist.get(i).toString();
-      				System.out.println("allgoodslist string is :" +s);
-      				if(s.toLowerCase().indexOf(m)!=-1){
-      					System.out.println("include :" + m);
-      					searchgoodslist.addElement(allgoodslist.get(i));
-      				}
-      				
-      			}
-      			mJComboBox.showPopup();
-      		}
-            }
-            
-            public void changedUpdate(DocumentEvent e) {
-                System.out.println("changedUpdate");
-            }
-        });
+		Vector s = new Vector();
+		s.addElement("sss");
+		searchgoodslist.addElement(s);
 	}
 
 	public void initAllGoodsList(){
@@ -828,10 +779,64 @@ public class MainForm extends JFrame implements ActionListener {
 			}
 		});
 		
+		searchTextField = (JTextField) mJComboBox.getEditor().getEditorComponent();
+		mDocument = searchTextField.getDocument();
+		mDefaultComboBoxModel.addElement("aaaa");
+		mDocument.addDocumentListener(new DocumentListener(){
+            public void insertUpdate(DocumentEvent e) {
+                System.out.println("insertUpdate");
+//                changeGoodsSearchList(searchTextField.getText());
+                String m =searchTextField.getText();
+        		System.out.println("Input String is : "+ m);
+        		mJComboBox.hidePopup();
+        		searchgoodslist.removeAllElements();
+        		if(m.length()!=0){
+        			for(int i=0; i <allgoodslist.size(); i++){
+        				String s = allgoodslist.get(i).toString();
+        				System.out.println("allgoodslist string is :" +s);
+        				if(s.toLowerCase().indexOf(m)!=-1){
+        					System.out.println("include :" + m);
+        					searchgoodslist.addElement(allgoodslist.get(i));
+        				}
+        				
+        			}
+        			mJComboBox.showPopup();
+        		}
+//              changeGoodsSearchList("acc");
+
+                
+            }
+            public void removeUpdate(DocumentEvent e) {
+                System.out.println("removeUpdate");
+//              changeGoodsSearchList(searchTextField.getText());
+              String m =searchTextField.getText();
+      		System.out.println("Input String is : "+ m);
+      		mJComboBox.hidePopup();
+      		searchgoodslist.removeAllElements();
+      		if(m.length()!=0){
+      			for(int i=0; i <allgoodslist.size(); i++){
+      				String s = allgoodslist.get(i).toString();
+      				System.out.println("allgoodslist string is :" +s);
+      				if(s.toLowerCase().indexOf(m)!=-1){
+      					System.out.println("include :" + m);
+      					searchgoodslist.addElement(allgoodslist.get(i));
+      				}
+      				
+      			}
+      			mJComboBox.showPopup();
+      		}
+            }
+            
+            public void changedUpdate(DocumentEvent e) {
+                System.out.println("changedUpdate");
+            }
+		 });
+		
+		
 	}
 	public void changeGoodsSearchList(String m){
 
-		mJComboBox.hidePopup();
+//		mJComboBox.hidePopup();
 //		Vector ss= new Vector();
 //		ss.add("bbb");
 //		searchgoodslist.addElement(ss);
@@ -840,10 +845,12 @@ public class MainForm extends JFrame implements ActionListener {
 		mJComboBox.hidePopup();
 		searchgoodslist.removeAllElements();
 		if(m.length()!=0){
+			System.out.println("Start");
 			for(int i=0; i <allgoodslist.size(); i++){
-				String s = allgoodslist.get(i).toString();
-				System.out.println("allgoodslist string is :" +s);
-				if(s.toLowerCase().indexOf(m)!=-1){
+				String ssssss = allgoodslist.get(i).toString();
+				System.out.println("allgoodslist string is :" +ssssss);
+				System.out.println(ssssss.toLowerCase());
+				if(ssssss.toLowerCase().indexOf(m.toLowerCase())!=-1){
 					System.out.println("include :" + m);
 					searchgoodslist.addElement(allgoodslist.get(i));
 				}
@@ -877,6 +884,15 @@ public class MainForm extends JFrame implements ActionListener {
 		} else if (e.getSource() == mJComboBox) {
 			System.out.print("in mJcomboBox");
 			
+		}else if (e.getSource() == btn_Pay) {
+			System.out.print("in mJcomboBox");
+			changeGoodsSearchList("B");
+		}else if (e.getSource() == btn_Discount) {
+			System.out.print("in mJcomboBox");
+			changeGoodsSearchList("a");
+		}else if (e.getSource() == btn_X) {
+			System.out.print("in mJcomboBox");
+			changeGoodsSearchList("87");
 		}
 
 	}
@@ -887,6 +903,8 @@ public class MainForm extends JFrame implements ActionListener {
 		app.setTitle("Test");
 		app.setSize(900, 600);
 		app.show();
+
+		app.changeGoodsSearchList("87");
 
 	}
 
