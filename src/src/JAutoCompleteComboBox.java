@@ -7,15 +7,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.List;
 import java.util.Vector;
+
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
+
 import java.util.Collections;
 import java.util.Arrays;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import javax.swing.JOptionPane;
 
 /**
@@ -35,6 +38,11 @@ public class JAutoCompleteComboBox
     super(cm);
     addCompleter();
   }
+  public JAutoCompleteComboBox(DefaultComboBoxModel dcm) {
+	    super(dcm);
+	    setEditable(true);
+//	    addCompleter();
+	  }
 
   public JAutoCompleteComboBox(Object[] items) {
     super(items);
@@ -128,6 +136,7 @@ class AutoCompleter
 
     int caretPosition = editor.getCaretPosition();
     String str = editor.getText();
+    System.out.println("Input strings : " + str);
     if (str.length() == 0) {
       return;
     }

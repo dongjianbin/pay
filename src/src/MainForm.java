@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -79,6 +80,7 @@ import java.util.Vector;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.Document;
 
 import src.TestConn;
 import src.PayTableModel;
@@ -89,13 +91,15 @@ import java.sql.*;
 import org.sqlite.JDBC;
 
 import javax.swing.JList;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import src.JAutoCompleteComboBox;
 
 // The main program class
 
 public class MainForm extends JFrame implements ActionListener {
-	private JTextField text_GoodsSearch;
+	private JTextField text_GoodsSearch,searchTextField;
 	private JTextField text_Custom;
 	private JButton btn_X, btn_Void, btn_Park, btn_Notes, btn_Discount,
 			btn_Pay, btn_Logout, btn_Add, btn_Quit;
@@ -103,9 +107,12 @@ public class MainForm extends JFrame implements ActionListener {
 	private PayTableModel mMyTableModel, tMyTableModel;
 	private JScrollPane scroll_panel_Main_Left_Btm_Top_Top_Btm,
 			scroll_Main_Right_Btm;
-	private Vector content, defaultcontent, defaultgoodslist;
+	private Vector content, defaultcontent, defaultgoodslist,allgoodslist,searchgoodslist;
 	private JTable defaulttable;
 	private JPanel panel_Main_Left_Top_Left;
+	private JComboBox mJComboBox;
+	private DefaultComboBoxModel mDefaultComboBoxModel;
+	private Document mDocument;
 
 	public MainForm() {
 		this.initForm();
@@ -532,20 +539,103 @@ public class MainForm extends JFrame implements ActionListener {
 	 * 
 	 * 
 	 * */
-	void initGoodsSearchList(){
-	    Object[] items = new Object[] {
-	            "zzz","zba","aab","abc", "aab","dfg","aba", "hpp", "pp", "hlp"};
-	        //排序内容
-	        //java.util.ArrayList list = new java.util.ArrayList(Arrays.asList(items));
-	        //Collections.sort(list);
-	        //JComboBox cmb = new JAutoCompleteComboBox(list.toArray());
-	        Arrays.sort(items);
-	        JComboBox mJComboBox = new JAutoCompleteComboBox(items);
-	        mJComboBox.setSelectedIndex(-1);
-			panel_Main_Left_Top_Left.add(mJComboBox);
-		
+	public void initGoodsSearchList(){
+		initAllGoodsList();
+		searchgoodslist = new Vector();
+        mDefaultComboBoxModel = new DefaultComboBoxModel(searchgoodslist); 
+//        mJComboBox = new JAutoCompleteComboBox(model);
+        mJComboBox = new JComboBox(mDefaultComboBoxModel);
+        mJComboBox.setEditable(true);//setEditable(true);
+        mJComboBox.setSelectedIndex(-1);
+
+		panel_Main_Left_Top_Left.add(mJComboBox);
+		searchTextField = (JTextField) mJComboBox.getEditor().getEditorComponent();
+		mDocument = searchTextField.getDocument();
+		mDefaultComboBoxModel.addElement("aaaa");
+		mDocument.addDocumentListener(new DocumentListener(){
+            public void insertUpdate(DocumentEvent e) {
+                System.out.println("insertUpdate");
+//                changeGoodsSearchList(searchTextField.getText());
+                String m =searchTextField.getText();
+        		System.out.println("Input String is : "+ m);
+        		mJComboBox.hidePopup();
+        		searchgoodslist.removeAllElements();
+        		if(m.length()!=0){
+        			for(int i=0; i <allgoodslist.size(); i++){
+        				String s = allgoodslist.get(i).toString();
+        				System.out.println("allgoodslist string is :" +s);
+        				if(s.toLowerCase().indexOf(m)!=-1){
+        					System.out.println("include :" + m);
+        					searchgoodslist.addElement(allgoodslist.get(i));
+        				}
+        				
+        			}
+        			mJComboBox.showPopup();
+        		}
+//              changeGoodsSearchList("acc");
+
+                
+            }
+            public void removeUpdate(DocumentEvent e) {
+                System.out.println("removeUpdate");
+//              changeGoodsSearchList(searchTextField.getText());
+              String m =searchTextField.getText();
+      		System.out.println("Input String is : "+ m);
+      		mJComboBox.hidePopup();
+      		searchgoodslist.removeAllElements();
+      		if(m.length()!=0){
+      			for(int i=0; i <allgoodslist.size(); i++){
+      				String s = allgoodslist.get(i).toString();
+      				System.out.println("allgoodslist string is :" +s);
+      				if(s.toLowerCase().indexOf(m)!=-1){
+      					System.out.println("include :" + m);
+      					searchgoodslist.addElement(allgoodslist.get(i));
+      				}
+      				
+      			}
+      			mJComboBox.showPopup();
+      		}
+            }
+            
+            public void changedUpdate(DocumentEvent e) {
+                System.out.println("changedUpdate");
+            }
+        });
 	}
 
+	public void initAllGoodsList(){
+		allgoodslist=new Vector();
+
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rset = null;
+		try {
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:/d:/test.db");
+			conn.setAutoCommit(false);
+			stmt = conn.createStatement();
+			rset = stmt.executeQuery("SELECT * FROM goods");
+			while (rset.next()) {
+				Vector v = new Vector(5);
+				v.add(0, rset.getInt("id"));
+				v.add(1, rset.getString("goods_name"));
+				v.add(2, rset.getString("goods_price"));
+				v.add(3, rset.getString("tax_price"));
+				allgoodslist.add(v);
+			}
+			rset.close();
+			stmt.close();
+			conn.close();
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("can't find class drive " + cnfe.getMessage());
+			System.exit(-1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}
 	void initDefaultFrame() {
 
 		String headName[] = { "Count", "Name", "Price", "Price", "Act" };
@@ -737,6 +827,31 @@ public class MainForm extends JFrame implements ActionListener {
 				}
 			}
 		});
+		
+	}
+	public void changeGoodsSearchList(String m){
+
+		mJComboBox.hidePopup();
+//		Vector ss= new Vector();
+//		ss.add("bbb");
+//		searchgoodslist.addElement(ss);
+//		mJComboBox.showPopup();
+		System.out.println("Input String is : "+ m);
+		mJComboBox.hidePopup();
+		searchgoodslist.removeAllElements();
+		if(m.length()!=0){
+			for(int i=0; i <allgoodslist.size(); i++){
+				String s = allgoodslist.get(i).toString();
+				System.out.println("allgoodslist string is :" +s);
+				if(s.toLowerCase().indexOf(m)!=-1){
+					System.out.println("include :" + m);
+					searchgoodslist.addElement(allgoodslist.get(i));
+				}
+				
+			}
+			mJComboBox.showPopup();
+		}
+		
 	}
 
 	// Main program simply constructs the ButtonDemo
@@ -759,6 +874,9 @@ public class MainForm extends JFrame implements ActionListener {
 			TestConn mTestConn = new TestConn();
 			// mTestConn.test();
 			// System.exit(0);
+		} else if (e.getSource() == mJComboBox) {
+			System.out.print("in mJcomboBox");
+			
 		}
 
 	}
