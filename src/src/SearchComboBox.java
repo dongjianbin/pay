@@ -20,43 +20,56 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JOptionPane;
+import javax.swing.text.Document;
 
 /**
  * @author SamZheng
  * 带有自动检查功能的CombBox
  */
-public class JAutoCompleteComboBox
+public class SearchComboBox
     extends JComboBox {
-  private AutoCompleter2 completer;
+  private AutoCompleter completer;
+  private Vector orilist;
+  
+  public void setOrilist(Vector v){
+	  orilist=v;
+  }
+  public Vector  getOrilist(){
+	  return this.orilist;
+	  
+  }
+  
 
-  public JAutoCompleteComboBox() {
+  public SearchComboBox() {
     super();
     addCompleter();
   }
 
-  public JAutoCompleteComboBox(ComboBoxModel cm) {
+  public SearchComboBox(ComboBoxModel cm) {
     super(cm);
+    setEditable(true);
     addCompleter();
   }
-  public JAutoCompleteComboBox(DefaultComboBoxModel dcm) {
+  public SearchComboBox(DefaultComboBoxModel dcm,Vector v) {
 	    super(dcm);
+	    this.orilist=v;
 	    setEditable(true);
-//	    addCompleter();
+	    addCompleter();
 	  }
 
-  public JAutoCompleteComboBox(Object[] items) {
+  public SearchComboBox(Object[] items) {
     super(items);
     addCompleter();
   }
 
-  public JAutoCompleteComboBox(List v) {
+  public SearchComboBox(List v) {
     super( (Vector) v);
     addCompleter();
   }
 
   private void addCompleter() {
     setEditable(true);
-    completer = new AutoCompleter2(this);
+    completer = new AutoCompleter(this);
   }
 
   public void autoComplete(String str) {
@@ -88,12 +101,22 @@ public class JAutoCompleteComboBox
     JFrame frame = new JFrame();
     Object[] items = new Object[] {
         "zzz","zba","aab","abc", "aab","dfg","aba", "hpp", "pp", "hlp"};
+    
+
+	Vector labels2= new Vector();
+	labels2.add("aaa");
+	labels2.add("bcd");
+	labels2.add("efg");
+	labels2.add("sda");
+	labels2.add("adef");
+	DefaultComboBoxModel mDefaultComboBoxModel=new DefaultComboBoxModel(labels2);
     //排序内容
     //java.util.ArrayList list = new java.util.ArrayList(Arrays.asList(items));
     //Collections.sort(list);
     //JComboBox cmb = new JAutoCompleteComboBox(list.toArray());
     Arrays.sort(items);
-    JComboBox cmb = new JAutoCompleteComboBox(items);
+    
+    JComboBox cmb = new SearchComboBox(mDefaultComboBoxModel,labels2);
     cmb.setSelectedIndex(-1);
     frame.getContentPane().add(cmb);
     frame.setSize(400, 80);
@@ -107,20 +130,28 @@ public class JAutoCompleteComboBox
  *   @author   SamZheng
  */
 
-class AutoCompleter2
+class AutoCompleter
     implements KeyListener, ItemListener {
 
   private JComboBox owner = null;
   private JTextField editor = null;
 
   private ComboBoxModel model = null;
+  private Vector orilist = null; 
+  private Document mDocument=null;
 
-  public AutoCompleter2(JComboBox comboBox) {
+  public AutoCompleter(SearchComboBox comboBox) {
     owner = comboBox;
+    orilist = ((SearchComboBox) owner).getOrilist();
+    System.out.println(orilist.toString());
     editor = (JTextField) comboBox.getEditor().getEditorComponent();
+    mDocument=editor.getDocument();
+    
     editor.addKeyListener(this);
     model = comboBox.getModel();
     owner.addItemListener(this);
+    
+    
   }
 
   public void keyTyped(KeyEvent e) {}
@@ -136,17 +167,42 @@ class AutoCompleter2
 
     int caretPosition = editor.getCaretPosition();
     String str = editor.getText();
-    System.out.println("Input strings : " + str);
+    System.out.println("Input strings : " + str +"position :" + caretPosition);
     if (str.length() == 0) {
       return;
     }
-    autoComplete(str, caretPosition);
+//    autoComplete(str, caretPosition);
+    autoComplete(str);
   }
 
+  protected void autoComplete(String strf) {
+	  Vector opts;
+	  opts = getMatchingVector(strf);
+	    if (owner != null) {
+	        model = new DefaultComboBoxModel(opts);
+	        owner.setModel(model);
+	        editor.setText(strf);
+//	        owner.setSelectedIndex(-1);
+	      }
+	    if (opts.size() > 0) {
+	        String str = opts.get(0).toString();
+	        if (owner != null) {
+	          try {
+	            owner.showPopup();
+	          }
+	          catch (Exception ex) {
+	            ex.printStackTrace();
+	          }
+	        }
+	      }
+  }
+  
   /**
    *   自动完成。根据输入的内容，在列表中找到相似的项目.
    */
   protected void autoComplete(String strf, int caretPosition) {
+
+		System.out.println("autoComplete here");
     Object[] opts;
     opts = getMatchingOptions(strf.substring(0, caretPosition));
     if (owner != null) {
@@ -203,12 +259,37 @@ class AutoCompleter2
     return v.toArray();
   }
 
+
+  protected Vector getMatchingVector(String str) {
+	  Vector v = new Vector();
+	  Vector v1 = new Vector();
+
+		if (str.length() != 0) {
+			System.out.println("Start");
+			for (int i = 0; i < orilist.size(); i++) {
+				String sss = orilist.get(i).toString();
+				System.out.println("allgoodslist string is :" + sss);
+				System.out.println(sss.toLowerCase());
+				if (sss.toLowerCase().indexOf(str.toLowerCase()) != -1) {
+					System.out.println("include :" + str);
+					v.addElement(orilist.get(i));
+				}
+			}
+		}
+    return v;
+  }
+  
   public void itemStateChanged(ItemEvent event) {
+	  System.out.println("aaa");
     if (event.getStateChange() == ItemEvent.SELECTED) {
+
+  	  System.out.println("bbb");
       int caretPosition = editor.getCaretPosition();
       if (caretPosition != -1) {
         try {
-          editor.moveCaretPosition(caretPosition);
+
+        	  System.out.println("ccc");
+//          editor.moveCaretPosition(caretPosition);
         }
         catch (IllegalArgumentException ex) {
           ex.printStackTrace();
