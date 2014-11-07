@@ -1,6 +1,8 @@
 package src;
 
+import java.io.File;
 import java.sql.*;
+
 //import SQLite.*;
 import org.sqlite.JDBC;
 
@@ -12,7 +14,7 @@ public class TestConn {
 		System.out.println(new java.util.Date());
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/d:/test.db");
+			conn = DriverManager.getConnection("jdbc:sqlite:/c:/javapay/test.db");
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			stmt.executeUpdate("create table hehe(id number, name varchar(32))");
@@ -83,7 +85,7 @@ public class TestConn {
 		System.out.println(new java.util.Date());
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/d:/test.db");
+			conn = DriverManager.getConnection("jdbc:sqlite:/c:/javapay/test.db");
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			stmt.executeUpdate("drop table if exists 'goods'");
@@ -170,6 +172,15 @@ public class TestConn {
 	}
 
 	public static void main(String[] args) {
+		File f =new File("c:\\javapay");
+		if(f.exists()){
+			System.out.println("exists");
+		}
+		else{
+			System.out.println("not exists");
+			f.mkdir();
+		}
+		
 		TestConn conn = new TestConn();
 		// conn.test();
 		// conn.test();
