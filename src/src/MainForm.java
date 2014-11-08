@@ -558,9 +558,12 @@ public class MainForm extends JFrame implements ActionListener {
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rset = null;
+		Config mConfig=new Config();
+		String dbname=mConfig.getDBfullPath();
+		System.out.println("dbname is : "+ dbname);
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/d:/test.db");
+			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			rset = stmt.executeQuery("SELECT * FROM goods");
@@ -593,9 +596,12 @@ public class MainForm extends JFrame implements ActionListener {
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rset = null;
+		Config mConfig=new Config();
+		String dbname=mConfig.getDBfullPath();
+		System.out.println("dbname is : "+ dbname);
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/d:/test.db");
+			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			rset = stmt.executeQuery("SELECT * FROM goods_default");

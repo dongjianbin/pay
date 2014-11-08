@@ -6,15 +6,20 @@ import java.sql.*;
 //import SQLite.*;
 import org.sqlite.JDBC;
 
+import src.Config;
+
 public class TestConn {
 	void test() {
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rset = null;
 		System.out.println(new java.util.Date());
+		Config mConfig=new Config();
+		String dbname=mConfig.getDBfullPath();
+		System.out.println("dbname is : "+ dbname);
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/c:/javapay/test.db");
+			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			stmt.executeUpdate("create table hehe(id number, name varchar(32))");
@@ -83,9 +88,12 @@ public class TestConn {
 		Statement stmt = null;
 		ResultSet rset = null;
 		System.out.println(new java.util.Date());
+		Config mConfig=new Config();
+		String dbname=mConfig.getDBfullPath();
+		System.out.println("dbname is : "+ dbname);
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/c:/javapay/test.db");
+			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			stmt.executeUpdate("drop table if exists 'goods'");
@@ -172,14 +180,14 @@ public class TestConn {
 	}
 
 	public static void main(String[] args) {
-		File f =new File("c:\\javapay");
-		if(f.exists()){
-			System.out.println("exists");
-		}
-		else{
-			System.out.println("not exists");
-			f.mkdir();
-		}
+//		File f =new File("c:\\javapay");
+//		if(f.exists()){
+//			System.out.println("exists");
+//		}
+//		else{
+//			System.out.println("not exists");
+//			f.mkdir();
+//		}
 		
 		TestConn conn = new TestConn();
 		// conn.test();
