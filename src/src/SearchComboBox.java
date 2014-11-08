@@ -188,24 +188,26 @@ class AutoCompleter implements KeyListener, ItemListener {
 
 	public void keyReleased(KeyEvent e) {
 		char ch = e.getKeyChar();
-		System.out.println("char is "+ ch);
-//		if (ch == KeyEvent.CHAR_UNDEFINED || Character.isISOControl(ch)
-//				|| ch == KeyEvent.VK_DELETE) {
-//			return;
-//		}
+//		System.out.println("char is "+ ch);
+////		if (ch == KeyEvent.CHAR_UNDEFINED || Character.isISOControl(ch)
+////				|| ch == KeyEvent.VK_DELETE) {
+////			return;
+////		}
 		if (ch == KeyEvent.CHAR_UNDEFINED ) {
 			System.out.println("char undefined");
 			return;
 		}
-
-		int caretPosition = editor.getCaretPosition();
+//
+//		int caretPosition = editor.getCaretPosition();
+//		String str = editor.getText();
+//		System.out.println("Input strings : " + str + "position :"
+//				+ caretPosition);
+//		if (str.length() == 0) {
+//			return;
+//		}
+//		// autoComplete(str, caretPosition);
+//		autoComplete(str);
 		String str = editor.getText();
-		System.out.println("Input strings : " + str + "position :"
-				+ caretPosition);
-		if (str.length() == 0) {
-			return;
-		}
-		// autoComplete(str, caretPosition);
 		autoComplete(str);
 	}
 
