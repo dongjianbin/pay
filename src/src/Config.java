@@ -32,27 +32,28 @@ public class Config {
 	private String ConfigUrl;
 
 	public Config() {
-		String configUrl=null;
+		String configUrl="";
 		configUrl = getConfigUrl();
 		if (configUrl != null && configUrl.length() == 0) {
 			System.out.println("not set configurl , now to use default");
 			setDefaultConfigHash();
 			this.ConfigHash = this.DefaultConfigHash;
-		} else {
-			this.ConfigHash = getConfigHashbyurl(configUrl);
+		}else if(configUrl.length()>0){
+			System.out.println("into else");
+//			this.ConfigHash = getConfigHashbyurl(configUrl);
 
 		}
 
 	}
 
 	public HashMap getConfigHashbyurl(String s) {
-		// String strsss = new String(s);
+		String strsss = new String(s);
 		HashMap hm = new HashMap();
 		BufferedReader reader = null;
 		String line;
 		StringBuffer strb = new StringBuffer();
 		try {
-			URL mURL = new URL(s);
+			URL mURL = new URL(strsss);
 
 			try {
 				reader = new BufferedReader(new InputStreamReader(
@@ -174,7 +175,7 @@ public class Config {
 	}
 
 	public String getConfigUrl() {
-		String s = null;
+		String s = "";
 		File d = new File(LOCALCONFIGDIR);
 		if (!d.exists()) {
 			d.mkdir();
@@ -206,7 +207,7 @@ public class Config {
 			}
 		}
 		if (f.length() == 0) {
-			return null;
+			return s;
 		}
 
 		return s;
@@ -222,6 +223,7 @@ public class Config {
         "</submittask>"
         ;
 		HashMap s = m.getHashMapbyxmlstring(xml);
+System.out.println("HashMap:");
 		System.out.print(s);
 	}
 }
