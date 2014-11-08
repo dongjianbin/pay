@@ -119,8 +119,7 @@ public class SearchComboBox extends JComboBox {
 		// java.util.ArrayList(Arrays.asList(items));
 		// Collections.sort(list);
 		// JComboBox cmb = new JAutoCompleteComboBox(list.toArray());
-		Arrays.sort(items);
-
+//		Arrays.sort(items);
 		JComboBox cmb = new SearchComboBox(mDefaultComboBoxModel, labels2);
 		cmb.setSelectedIndex(-1);
 		frame.getContentPane().add(cmb);
@@ -151,24 +150,24 @@ class AutoCompleter implements KeyListener, ItemListener {
 		orilist = ((SearchComboBox) owner).getOrilist();
 		System.out.println(orilist.toString());
 		editor = (JTextField) comboBox.getEditor().getEditorComponent();
-		mDocument = editor.getDocument();
-		mDocument.addDocumentListener(new DocumentListener() {
-			public void insertUpdate(DocumentEvent e) {
-				System.out.println("insertUpdate");
-				String m = editor.getText();
-				System.out.println("Input String is : " + m);
-
-
-			}
-
-			public void removeUpdate(DocumentEvent e) {
-				System.out.println("removeUpdate");
-			}
-
-			public void changedUpdate(DocumentEvent e) {
-				System.out.println("changedUpdate");
-			}
-		});
+//		mDocument = editor.getDocument();
+//		mDocument.addDocumentListener(new DocumentListener() {
+//			public void insertUpdate(DocumentEvent e) {
+//				System.out.println("insertUpdate");
+//				String m = editor.getText();
+//				System.out.println("Input String is : " + m);
+//
+//
+//			}
+//
+//			public void removeUpdate(DocumentEvent e) {
+//				System.out.println("removeUpdate");
+//			}
+//
+//			public void changedUpdate(DocumentEvent e) {
+//				System.out.println("changedUpdate");
+//			}
+//		});
 
 		editor.addKeyListener(this);
 		model = comboBox.getModel();
@@ -217,7 +216,7 @@ class AutoCompleter implements KeyListener, ItemListener {
 		if (owner != null) {
 			model = new DefaultComboBoxModel(opts);
 			owner.setModel(model);
-			editor.setText(strf);
+			editor.setText(strf.trim());
 			// owner.setSelectedIndex(-1);
 		}
 		if (opts.size() > 0) {

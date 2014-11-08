@@ -86,6 +86,7 @@ import javax.swing.text.Document;
 import src.TestConn;
 import src.PayTableModel;
 import src.DefaultListModel;
+import src.SearchComboBox;
 
 import java.sql.*;
 
@@ -542,10 +543,13 @@ public class MainForm extends JFrame implements ActionListener {
 	 */
 	public void initGoodsSearchList() {
 		initAllGoodsList();
-		searchgoodslist = new Vector();
-		mDefaultComboBoxModel = new DefaultComboBoxModel(searchgoodslist);
+//		searchgoodslist = new Vector();
+//		mDefaultComboBoxModel = new DefaultComboBoxModel(searchgoodslist);
+		mDefaultComboBoxModel = new DefaultComboBoxModel();
+
 		// mJComboBox = new JAutoCompleteComboBox(model);
-		mJComboBox = new JComboBox(mDefaultComboBoxModel);
+		mJComboBox = new SearchComboBox(mDefaultComboBoxModel, this.allgoodslist);
+//		mJComboBox = new JComboBox(mDefaultComboBoxModel);
 		mJComboBox.setEditable(true);// setEditable(true);
 		mJComboBox.setSelectedIndex(-1);
 
@@ -783,29 +787,29 @@ public class MainForm extends JFrame implements ActionListener {
 			}
 		});
 
-		searchTextField = (JTextField) mJComboBox.getEditor()
-				.getEditorComponent();
-		mDocument = searchTextField.getDocument();
-		mDocument.addDocumentListener(new DocumentListener() {
-			public void insertUpdate(DocumentEvent e) {
-				System.out.println("insertUpdate");
-				String m = searchTextField.getText();
-				System.out.println("Input String is : " + m);
-				changeGoodsSearchList(m);
-
-			}
-
-			public void removeUpdate(DocumentEvent e) {
-				System.out.println("removeUpdate");
-				String m = searchTextField.getText();
-				System.out.println("Input String is : " + m);
-				changeGoodsSearchList(m);
-			}
-
-			public void changedUpdate(DocumentEvent e) {
-				System.out.println("changedUpdate");
-			}
-		});
+//		searchTextField = (JTextField) mJComboBox.getEditor()
+//				.getEditorComponent();
+//		mDocument = searchTextField.getDocument();
+//		mDocument.addDocumentListener(new DocumentListener() {
+//			public void insertUpdate(DocumentEvent e) {
+//				System.out.println("insertUpdate");
+//				String m = searchTextField.getText();
+//				System.out.println("Input String is : " + m);
+//				changeGoodsSearchList(m);
+//
+//			}
+//
+//			public void removeUpdate(DocumentEvent e) {
+//				System.out.println("removeUpdate");
+//				String m = searchTextField.getText();
+//				System.out.println("Input String is : " + m);
+//				changeGoodsSearchList(m);
+//			}
+//
+//			public void changedUpdate(DocumentEvent e) {
+//				System.out.println("changedUpdate");
+//			}
+//		});
 
 	}
 
@@ -860,13 +864,13 @@ public class MainForm extends JFrame implements ActionListener {
 
 		} else if (e.getSource() == btn_Pay) {
 			System.out.print("in mJcomboBox");
-			changeGoodsSearchList("B");
+//			changeGoodsSearchList("B");
 		} else if (e.getSource() == btn_Discount) {
 			System.out.print("in mJcomboBox");
-			changeGoodsSearchList("a");
+//			changeGoodsSearchList("a");
 		} else if (e.getSource() == btn_X) {
 			System.out.print("in mJcomboBox");
-			changeGoodsSearchList("87");
+//			changeGoodsSearchList("87");
 		}
 
 	}
