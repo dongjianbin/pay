@@ -9,6 +9,10 @@ import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -109,13 +113,14 @@ public class MainForm extends JFrame implements ActionListener {
 	private PayTableModel mMyTableModel, tMyTableModel;
 	private JScrollPane scroll_panel_Main_Left_Btm_Top_Top_Btm,
 			scroll_Main_Right_Btm;
-	private Vector content, defaultcontent, defaultgoodslist, allgoodslist,
+	private Vector content, defaultcontent, defaultgoodslist, allgoodslist,allgoodslistcp,
 			searchgoodslist;
 	private JTable defaulttable;
 	private JPanel panel_Main_Left_Top_Left;
 	private JComboBox mJComboBox;
 	private DefaultComboBoxModel mDefaultComboBoxModel;
 	private Document mDocument;
+	private boolean  keyflag;
 
 	public MainForm() {
 		this.initForm();
@@ -589,6 +594,8 @@ public class MainForm extends JFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		allgoodslistcp=new Vector();
+		allgoodslistcp=allgoodslist;
 
 	}
 
@@ -786,6 +793,50 @@ public class MainForm extends JFrame implements ActionListener {
 				}
 			}
 		});
+		searchTextField = (JTextField) mJComboBox.getEditor()
+				.getEditorComponent();
+		searchTextField.addKeyListener(new KeyListener(){
+			public void keyTyped(KeyEvent e) {
+				System.out.println("public void keyTyped(KeyEvent e Main)");
+				
+			}
+			public void keyPressed(KeyEvent e) {
+				System.out.println("public void keyPressed(KeyEvent e Main)");
+				if(e.getKeyCode()==38 || e.getKeyCode()==40){
+					keyflag=true;
+				}else{
+					keyflag=false;
+				}
+			}
+			public void keyReleased(KeyEvent e) {
+				System.out.println("public void keyReleased(KeyEvent e Main)");
+				System.out.println("keyreleased is "+ e.getKeyCode());
+
+				if(e.getKeyCode()==KeyEvent.VK_ENTER){
+					System.out.println("press enter to select ,start to add to list");
+					//Add 
+					addsearchtexttolist();
+//					String  s = searchTextField.getText().toString();
+					
+				}
+				
+			}
+			
+		});
+		mJComboBox.addItemListener(new ItemListener(){
+			public void itemStateChanged(ItemEvent event) {
+				System.out.println("public void itemStateChanged(ItemEvent event) main");
+				if(event.getStateChange()==ItemEvent.SELECTED){
+					System.out.println(mJComboBox.getItemCount());
+					if(!keyflag){
+						System.out.println("click to select , start to add to list");
+						//Add
+						addsearchtexttolist();
+					}
+				}
+			}
+			
+		});
 
 //		searchTextField = (JTextField) mJComboBox.getEditor()
 //				.getEditorComponent();
@@ -812,7 +863,29 @@ public class MainForm extends JFrame implements ActionListener {
 //		});
 
 	}
+	
+	
+	public void addsearchtexttolist(){
+		System.out.println("public void addsearchtexttolist()");
+		String add= searchTextField.getText().toString();
+		System.out.println("to add string is : " + add);
+		Vector v = new Vector(this.allgoodslist);
+		for(int i=0;i<this.allgoodslist.size();i++){
+			String sss = this.allgoodslist.get(i).toString();
+			System.out.println("I : " + i +" is " + sss);
+			if(sss.endsWith(add)){
+				JButton mJButton = new JButton("X");
+				Vector cvector= new Vector((Vector) v.get(i));
+				cvector.add(4,mJButton);
+				mMyTableModel.addRow(cvector);
+				mtable.updateUI();
+				System.out.print(this.allgoodslist);
+				break;
+			}
+		}
+	}
 
+	//no use
 	public void changeGoodsSearchList(String m) {
 		mJComboBox.hidePopup();
 //		searchgoodslist.clear();

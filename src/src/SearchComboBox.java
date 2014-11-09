@@ -223,10 +223,6 @@ class AutoCompleter implements KeyListener, ItemListener {
 //		autoComplete(str);
 		String str = editor.getText();
 		autoComplete(str);
-		if(e.getKeyCode()==KeyEvent.VK_ENTER){
-			System.out.println("enter");
-			
-		}
 	}
 //
 	protected void autoComplete(String strf) {
