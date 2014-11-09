@@ -21,9 +21,14 @@ public class ArrayListComboBoxModelDemo {
    arrayList.add("B");   
    arrayList.add("C");   
    JComboBox comboBox = new JComboBox(model);   
+   comboBox.setEditable(true);
+   comboBox.setSelectedIndex(-1);
  
    frame.add(comboBox, BorderLayout.NORTH);   
    frame.setSize(300, 225);   
    frame.setVisible(true);   
+   arrayList.clear();
+   arrayList.add("dsfs");
+   arrayList.add("dsfsdfss");
  }   
 }   

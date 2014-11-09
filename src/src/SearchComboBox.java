@@ -35,60 +35,72 @@ public class SearchComboBox extends JComboBox {
 	private Vector orilist;
 
 	public void setOrilist(Vector v) {
+		System.out.println("public void setOrilist(Vector v)");
 		orilist = v;
 	}
 
 	public Vector getOrilist() {
+		System.out.println("public Vector getOrilist()");
 		return this.orilist;
 
 	}
 
 	public SearchComboBox() {
 		super();
+		System.out.println("public SearchComboBox()");
 		addCompleter();
 	}
 
 	public SearchComboBox(ComboBoxModel cm) {
 		super(cm);
+		System.out.println("public SearchComboBox(ComboBoxModel cm)");
 		setEditable(true);
 		addCompleter();
 	}
 
 	public SearchComboBox(DefaultComboBoxModel dcm, Vector v) {
 		super(dcm);
+		System.out.println("public SearchComboBox(DefaultComboBoxModel dcm, Vector v)");
 		this.orilist = v;
-		setEditable(true);
+//		setEditable(true);
 		addCompleter();
 	}
 
 	public SearchComboBox(Object[] items) {
 		super(items);
+		System.out.println("public SearchComboBox(Object[] items)");
 		addCompleter();
 	}
 
 	public SearchComboBox(List v) {
 		super((Vector) v);
+		System.out.println("public SearchComboBox(List v)");
 		addCompleter();
 	}
 
 	private void addCompleter() {
+		System.out.println("private void addCompleter()");
 		setEditable(true);
 		completer = new AutoCompleter(this);
 	}
 
 	public void autoComplete(String str) {
+		System.out.println("public void autoComplete(String str)");
 		this.completer.autoComplete(str, str.length());
 	}
 
 	public String getText() {
+		System.out.println("public String getText()");
 		return ((JTextField) getEditor().getEditorComponent()).getText();
 	}
 
 	public void setText(String text) {
+		System.out.println("public void setText(String text)");
 		((JTextField) getEditor().getEditorComponent()).setText(text);
 	}
 
 	public boolean containsItem(String itemString) {
+		System.out.println("public boolean containsItem(String itemString)");
 		for (int i = 0; i < this.getModel().getSize(); i++) {
 			String _item = "" + this.getModel().getElementAt(i);
 			if (_item.equals(itemString)) {
@@ -114,6 +126,7 @@ public class SearchComboBox extends JComboBox {
 		labels2.add("sda");
 		labels2.add("adef");
 		DefaultComboBoxModel mDefaultComboBoxModel = new DefaultComboBoxModel();
+//		DefaultComboBoxModel mDefaultComboBoxModel = new DefaultComboBoxModel(labels2);
 		// 排序内容
 		// java.util.ArrayList list = new
 		// java.util.ArrayList(Arrays.asList(items));
@@ -121,6 +134,8 @@ public class SearchComboBox extends JComboBox {
 		// JComboBox cmb = new JAutoCompleteComboBox(list.toArray());
 //		Arrays.sort(items);
 		JComboBox cmb = new SearchComboBox(mDefaultComboBoxModel, labels2);
+//		JComboBox cmb = new JComboBox(mDefaultComboBoxModel);
+		cmb.setEditable(true);
 		cmb.setSelectedIndex(-1);
 		frame.getContentPane().add(cmb);
 		frame.setSize(400, 80);
@@ -146,6 +161,7 @@ class AutoCompleter implements KeyListener, ItemListener {
 	private Robot robot;
 
 	public AutoCompleter(SearchComboBox comboBox) {
+		System.out.println("public AutoCompleter(SearchComboBox comboBox)");
 		owner = comboBox;
 		orilist = ((SearchComboBox) owner).getOrilist();
 		System.out.println(orilist.toString());
@@ -175,17 +191,16 @@ class AutoCompleter implements KeyListener, ItemListener {
 
 	}
 
-	public void DocumentListener(){
-		
-		
-	}
 	public void keyTyped(KeyEvent e) {
+		System.out.println("public void keyTyped(KeyEvent e)");
 	}
 
 	public void keyPressed(KeyEvent e) {
+		System.out.println("public void keyPressed(KeyEvent e)");
 	}
 
 	public void keyReleased(KeyEvent e) {
+		System.out.println("public void keyReleased(KeyEvent e)");
 		char ch = e.getKeyChar();
 //		System.out.println("char is "+ ch);
 ////		if (ch == KeyEvent.CHAR_UNDEFINED || Character.isISOControl(ch)
@@ -208,16 +223,25 @@ class AutoCompleter implements KeyListener, ItemListener {
 //		autoComplete(str);
 		String str = editor.getText();
 		autoComplete(str);
+		if(e.getKeyCode()==KeyEvent.VK_ENTER){
+			System.out.println("enter");
+			
+		}
 	}
-
+//
 	protected void autoComplete(String strf) {
+		System.out.println("protected void autoComplete(String strf)");
+
 		Vector opts;
 		opts = getMatchingVector(strf);
 		if (owner != null) {
 			model = new DefaultComboBoxModel(opts);
 			owner.setModel(model);
+
+			owner.setSelectedItem(null);
+//			owner.setSelectedItem(-1);
 			editor.setText(strf.trim());
-			// owner.setSelectedIndex(-1);
+//			 owner.setSelectedIndex(-1);
 		}
 		if (opts.size() > 0) {
 			String str = opts.get(0).toString();
@@ -235,13 +259,13 @@ class AutoCompleter implements KeyListener, ItemListener {
 	 * 自动完成。根据输入的内容，在列表中找到相似的项目.
 	 */
 	protected void autoComplete(String strf, int caretPosition) {
-
-		System.out.println("autoComplete here");
+		System.out.println("protected void autoComplete(String strf, int caretPosition)");
 		Object[] opts;
 		opts = getMatchingOptions(strf.substring(0, caretPosition));
 		if (owner != null) {
 			model = new DefaultComboBoxModel(opts);
 			owner.setModel(model);
+//			owner.setSelectedItem(null);
 		}
 		if (opts.length > 0) {
 			String str = opts[0].toString();
@@ -267,6 +291,8 @@ class AutoCompleter implements KeyListener, ItemListener {
 	 * @return 返回所有项目的列表。
 	 */
 	protected Object[] getMatchingOptions(String str) {
+		System.out.println("protected Object[] getMatchingOptions(String str)");
+
 		List v = new Vector();
 		List v1 = new Vector();
 
@@ -293,18 +319,17 @@ class AutoCompleter implements KeyListener, ItemListener {
 	}
 
 	protected Vector getMatchingVector(String str) {
+		System.out.println("protected Vector getMatchingVector(String str)");
+		System.out.println("Input String is : " + str);
 		Vector v = new Vector();
-		Vector v1 = new Vector();
-
 		if (str.length() != 0) {
-			System.out.println("Start");
 			for (int i = 0; i < orilist.size(); i++) {
 				String sss = orilist.get(i).toString();
-				System.out.println("allgoodslist string is :" + sss);
-				System.out.println(sss.toLowerCase());
 				if (sss.toLowerCase().indexOf(str.toLowerCase()) != -1) {
-					System.out.println("include :" + str);
+					System.out.println("Do  Have String : \"" + sss +"\",\"" + str + "\"");
 					v.addElement(orilist.get(i));
+				}else {
+					System.out.println("Not Have String : \"" + sss +"\",\"" + str + "\"");
 				}
 			}
 		}
@@ -312,20 +337,22 @@ class AutoCompleter implements KeyListener, ItemListener {
 	}
 
 	public void itemStateChanged(ItemEvent event) {
-		System.out.println("aaa");
-		if (event.getStateChange() == ItemEvent.SELECTED) {
-
-			System.out.println("bbb");
-			int caretPosition = editor.getCaretPosition();
-			if (caretPosition != -1) {
-				try {
-
-					System.out.println("ccc");
-					// editor.moveCaretPosition(caretPosition);
-				} catch (IllegalArgumentException ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
+		System.out.println("public void itemStateChanged(ItemEvent event)");
+		String str = editor.getText();
+//		autoComplete(str);
+//		if (event.getStateChange() == ItemEvent.SELECTED) {
+//
+//			System.out.println("bbb");
+//			int caretPosition = editor.getCaretPosition();
+//			if (caretPosition != -1) {
+//				try {
+//
+//					System.out.println("ccc");
+//					// editor.moveCaretPosition(caretPosition);
+//				} catch (IllegalArgumentException ex) {
+//					ex.printStackTrace();
+//				}
+//			}
+//		}
 	}
 }
