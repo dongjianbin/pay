@@ -871,6 +871,8 @@ public class MainForm extends JFrame implements ActionListener {
 	public void addsearchtexttolist(){
 		System.out.println("public void addsearchtexttolist()");
 		String add= searchTextField.getText().toString();
+		searchTextField.setSelectionStart(0);
+		searchTextField.setSelectionEnd(searchTextField.getText().toString().length());
 		System.out.println("to add string is : " + add);
 		Vector v = new Vector(this.allgoodslist);
 		for(int i=0;i<this.allgoodslist.size();i++){
