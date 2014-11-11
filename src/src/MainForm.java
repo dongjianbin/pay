@@ -113,7 +113,7 @@ public class MainForm extends JFrame implements ActionListener {
 	private PayTableModel mMyTableModel, tMyTableModel;
 	private JScrollPane scroll_panel_Main_Left_Btm_Top_Top_Btm,
 			scroll_Main_Right_Btm;
-	private Vector content, defaultcontent, defaultgoodslist, allgoodslist,allgoodslistcp,
+	private Vector content, defaultcontent, defaultgoodslist, allgoodslist,
 			searchgoodslist;
 	private JTable defaulttable;
 	private JPanel panel_Main_Left_Top_Left;
@@ -561,6 +561,14 @@ public class MainForm extends JFrame implements ActionListener {
 		panel_Main_Left_Top_Left.add(mJComboBox);
 	}
 
+	/**
+	 * params null
+	 * 
+	 * select all data from database
+	 * then add data to Global Var Vector allgoodslist;
+	 * use in func initGoodsSearchList
+	 * 
+	 * */
 	public void initAllGoodsList() {
 		allgoodslist = new Vector();
 
@@ -582,6 +590,7 @@ public class MainForm extends JFrame implements ActionListener {
 				v.add(1, rset.getString("goods_name"));
 				v.add(2, rset.getString("goods_price"));
 				v.add(3, rset.getString("tax_price"));
+				v.add(3, rset.getString("tax_price"));
 				allgoodslist.add(v);
 			}
 			rset.close();
@@ -594,10 +603,13 @@ public class MainForm extends JFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		allgoodslistcp=new Vector();
-		allgoodslistcp=allgoodslist;
 
 	}
+	
+	/**
+	 * init the default goods on the right of the panel.
+	 * 
+	 * **/
 
 	void initDefaultFrame() {
 
@@ -700,6 +712,12 @@ public class MainForm extends JFrame implements ActionListener {
 
 	}
 
+	/**
+	 * init table below the searchtextfield. 
+	 * 
+	 * **/
+	
+	
 	void initTable() {
 
 		String headName[] = { "Count", "Name", "Price", "Price", "Act" };
@@ -707,37 +725,37 @@ public class MainForm extends JFrame implements ActionListener {
 		JButton mJButton = new JButton("X");
 		content = new Vector();
 
-		Connection conn = null;
-		Statement stmt = null;
-		ResultSet rset = null;
-		Config mConfig=new Config();
-		String dbname=mConfig.getDBfullPath();
-		System.out.println("dbname is : "+ dbname);
-		try {
-			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
-			conn.setAutoCommit(false);
-			stmt = conn.createStatement();
-			rset = stmt.executeQuery("SELECT * FROM goods");
-			while (rset.next()) {
-				Vector v = new Vector(5);
-				v.add(0, rset.getInt("id"));
-				v.add(1, rset.getString("goods_name"));
-				v.add(2, rset.getString("goods_price"));
-				v.add(3, rset.getString("tax_price"));
-				v.add(4, mJButton);
-				content.add(v);
-			}
-			rset.close();
-			stmt.close();
-			conn.close();
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("can't find class drive " + cnfe.getMessage());
-			System.exit(-1);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		Connection conn = null;
+//		Statement stmt = null;
+//		ResultSet rset = null;
+//		Config mConfig=new Config();
+//		String dbname=mConfig.getDBfullPath();
+//		System.out.println("dbname is : "+ dbname);
+//		try {
+//			Class.forName("org.sqlite.JDBC");
+//			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
+//			conn.setAutoCommit(false);
+//			stmt = conn.createStatement();
+//			rset = stmt.executeQuery("SELECT * FROM goods");
+//			while (rset.next()) {
+//				Vector v = new Vector(5);
+//				v.add(0, rset.getInt("id"));
+//				v.add(1, rset.getString("goods_name"));
+//				v.add(2, rset.getString("goods_price"));
+//				v.add(3, rset.getString("tax_price"));
+//				v.add(4, mJButton);
+//				content.add(v);
+//			}
+//			rset.close();
+//			stmt.close();
+//			conn.close();
+//		} catch (ClassNotFoundException cnfe) {
+//			System.out.println("can't find class drive " + cnfe.getMessage());
+//			System.exit(-1);
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 		mMyTableModel = new PayTableModel(headName, content);
 		mtable = new JTable(mMyTableModel);
@@ -760,7 +778,6 @@ public class MainForm extends JFrame implements ActionListener {
 	}
 
 	public void addHandler() {
-		// 锟斤拷锟斤拷录锟�
 		mtable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				System.out.println("table");
@@ -867,10 +884,20 @@ public class MainForm extends JFrame implements ActionListener {
 
 	}
 	
+	/**
+	 * params null
+	 * add goods which is in the searchtext to the tablelist
+	 * 
+	 * **/
 	
 	public void addsearchtexttolist(){
 		System.out.println("public void addsearchtexttolist()");
 		String add= searchTextField.getText().toString();
+		if(add.length()==0){
+			System.out.println("length is 0");
+			return;
+		}
+		
 		searchTextField.setSelectionStart(0);
 		searchTextField.setSelectionEnd(searchTextField.getText().toString().length());
 		System.out.println("to add string is : " + add);
@@ -923,7 +950,8 @@ public class MainForm extends JFrame implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btn_Add) {
-			// System.exit(0);
+			addsearchtexttolist();
+//			 System.exit(0);
 		} else if (e.getSource() == btn_Logout) {
 			LoginForm mLoginForm = new LoginForm();
 			mLoginForm.setTitle("Login");
