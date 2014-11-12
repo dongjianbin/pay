@@ -69,7 +69,7 @@ class PayTableModel extends AbstractTableModel {
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		 if (columnIndex == 0 ||columnIndex == 1 || columnIndex == 2
-		 ||columnIndex == 3 || columnIndex == 4) {
+		 ||columnIndex == 3 || columnIndex == 4 || columnIndex == 5) {
 			return false;
 		}
 		return true;

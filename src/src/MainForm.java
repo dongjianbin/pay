@@ -81,6 +81,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.JTable;
@@ -121,8 +122,13 @@ public class MainForm extends JFrame implements ActionListener {
 	private DefaultComboBoxModel mDefaultComboBoxModel;
 	private Document mDocument;
 	private boolean  keyflag;
+	private HashMap goods_id2id,id2goods_id,defaultid2goods_id,goods_id2defaultid;
 
 	public MainForm() {
+		goods_id2id = new HashMap();
+		id2goods_id = new HashMap();
+		defaultid2goods_id = new HashMap();
+		goods_id2defaultid = new HashMap();
 		this.initForm();
 
 	}
@@ -560,6 +566,68 @@ public class MainForm extends JFrame implements ActionListener {
 
 		panel_Main_Left_Top_Left.add(mJComboBox);
 	}
+	
+	public Vector getgoodslist(String s){
+		System.out.println("public Vector getgoodslist(String s)");
+		Vector gsVector = new Vector();
+		String gtype=s;
+		String sql="";
+		if(gtype.endsWith("allgoodslist")){
+			System.out.println("allgoodslist");
+			sql="SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku FROM goods";
+			
+		}else if(gtype.endsWith("defaultgoodslist")){
+			System.out.println("defaultgoodslist");
+			sql="SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku FROM goods_default";
+		}
+
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rset = null;
+		Config mConfig=new Config();
+		String dbname=mConfig.getDBfullPath();
+		System.out.println("dbname is : "+ dbname);
+		try {
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
+			conn.setAutoCommit(false);
+			stmt = conn.createStatement();
+			rset = stmt.executeQuery(sql);
+			while (rset.next()) {
+				Vector v = new Vector(7);
+				v.add(0, rset.getInt("id"));
+				v.add(1, rset.getInt("goods_id"));
+				v.add(2, rset.getString("goods_name"));
+				v.add(3, rset.getString("goods_price"));
+				v.add(4, rset.getString("tax_price"));
+				v.add(5, rset.getString("handle"));
+				v.add(6, rset.getString("sku"));
+				gsVector.add(v);
+				if(gtype.endsWith("defaultgoodslist")){
+					System.out.println("rset.getInt(goods_id)"+rset.getInt("goods_id"));
+					System.out.println("rsize"+gsVector.size());
+					defaultid2goods_id.put( gsVector.size()-1,rset.getInt("goods_id"));
+					goods_id2defaultid.put(rset.getInt("goods_id"), (int) gsVector.size()-1);
+					
+				}
+				else if(gtype.endsWith("allgoodslist")){
+					goods_id2id.put(rset.getInt("goods_id"), gsVector.size()-1);
+					id2goods_id.put(gsVector.size()-1,rset.getInt("goods_id"));
+				}
+			}
+			rset.close();
+			stmt.close();
+			conn.close();
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("can't find class drive " + cnfe.getMessage());
+			System.exit(-1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return gsVector;
+	}
 
 	/**
 	 * params null
@@ -571,39 +639,7 @@ public class MainForm extends JFrame implements ActionListener {
 	 * */
 	public void initAllGoodsList() {
 		allgoodslist = new Vector();
-
-		Connection conn = null;
-		Statement stmt = null;
-		ResultSet rset = null;
-		Config mConfig=new Config();
-		String dbname=mConfig.getDBfullPath();
-		System.out.println("dbname is : "+ dbname);
-		try {
-			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
-			conn.setAutoCommit(false);
-			stmt = conn.createStatement();
-			rset = stmt.executeQuery("SELECT * FROM goods");
-			while (rset.next()) {
-				Vector v = new Vector(5);
-				v.add(0, rset.getInt("id"));
-				v.add(1, rset.getString("goods_name"));
-				v.add(2, rset.getString("goods_price"));
-				v.add(3, rset.getString("tax_price"));
-				v.add(3, rset.getString("tax_price"));
-				allgoodslist.add(v);
-			}
-			rset.close();
-			stmt.close();
-			conn.close();
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("can't find class drive " + cnfe.getMessage());
-			System.exit(-1);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		allgoodslist=getgoodslist("allgoodslist");
 	}
 	
 	/**
@@ -615,42 +651,8 @@ public class MainForm extends JFrame implements ActionListener {
 
 		String headName[] = { "Count", "Name", "Price", "Price", "Act" };
 		defaultcontent = new Vector();
-
-		Connection conn = null;
-		Statement stmt = null;
-		ResultSet rset = null;
-		Config mConfig=new Config();
-		String dbname=mConfig.getDBfullPath();
-		System.out.println("dbname is : "+ dbname);
-		try {
-			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
-			conn.setAutoCommit(false);
-			stmt = conn.createStatement();
-			rset = stmt.executeQuery("SELECT * FROM goods_default");
-
-			JButton mJButton = new JButton("X");
-			defaultgoodslist = new Vector();
-
-			while (rset.next()) {
-				Vector vv = new Vector(4);
-				vv.add(0, rset.getInt("id"));
-				vv.add(1, rset.getString("goods_name"));
-				vv.add(2, rset.getString("goods_price"));
-				vv.add(3, rset.getString("tax_price"));
-				vv.add(4, mJButton);
-				defaultgoodslist.add(vv);
-			}
-			rset.close();
-			stmt.close();
-			conn.close();
-		} catch (ClassNotFoundException cnfe) {
-			System.out.println("can't find class drive " + cnfe.getMessage());
-			System.exit(-1);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		defaultgoodslist=getgoodslist("defaultgoodslist");
+		
 		if (defaultgoodslist.size() > 0) {
 			System.out.println(defaultgoodslist.size());
 			int j = 0;
@@ -666,7 +668,7 @@ public class MainForm extends JFrame implements ActionListener {
 					j = 0;
 				}
 				System.out.println("i is " + i + "; j is " + j);
-				vec.add(j, ((Vector) defaultgoodslist.get(i)).get(1));
+				vec.add(j, ((Vector) defaultgoodslist.get(i)).get(2));
 				if (j == 4) {
 					defaultcontent.add(vec);
 					vec = null;
@@ -697,6 +699,7 @@ public class MainForm extends JFrame implements ActionListener {
 		defaulttable.setDefaultRenderer(JButton.class,
 				new ComboBoxCellRenderer());
 		defaulttable.getTableHeader().setPreferredSize(new Dimension(0, 20));
+		defaulttable.getTableHeader().setVisible(false);
 		defaulttable.setRowHeight(50);
 		defaulttable.getSelectionModel().setSelectionMode(
 				ListSelectionModel.SINGLE_SELECTION);
@@ -720,7 +723,7 @@ public class MainForm extends JFrame implements ActionListener {
 	
 	void initTable() {
 
-		String headName[] = { "Count", "Name", "Price", "Price", "Act" };
+		String headName[] = {"goods_id","Count", "Name", "Price", "Price", "Act" };
 		String path = "";
 		JButton mJButton = new JButton("X");
 		content = new Vector();
@@ -767,12 +770,17 @@ public class MainForm extends JFrame implements ActionListener {
 				ListSelectionModel.SINGLE_SELECTION);
 		mtable.getTableHeader().setReorderingAllowed(false);
 		mtable.getTableHeader().setResizingAllowed(false);
-
-		mtable.getColumnModel().getColumn(0).setPreferredWidth(45);
-		mtable.getColumnModel().getColumn(1).setPreferredWidth(200);
-		mtable.getColumnModel().getColumn(2).setPreferredWidth(40);
+		mtable.getTableHeader().getColumnModel().getColumn(0).setMaxWidth(20);  
+		mtable.getTableHeader().getColumnModel().getColumn(0).setPreferredWidth(20);
+		mtable.getTableHeader().getColumnModel().getColumn(0).setMinWidth(20);
+		mtable.getColumnModel().getColumn(0).setMaxWidth(0);
+		mtable.getColumnModel().getColumn(0).setPreferredWidth(0);
+		mtable.getColumnModel().getColumn(0).setMinWidth(0);
+		mtable.getColumnModel().getColumn(1).setPreferredWidth(45);
+		mtable.getColumnModel().getColumn(2).setPreferredWidth(200);
 		mtable.getColumnModel().getColumn(3).setPreferredWidth(40);
-		mtable.getColumnModel().getColumn(4).setPreferredWidth(10);
+		mtable.getColumnModel().getColumn(4).setPreferredWidth(40);
+		mtable.getColumnModel().getColumn(5).setPreferredWidth(10);
 		scroll_panel_Main_Left_Btm_Top_Top_Btm.setViewportView(mtable);
 
 	}
@@ -784,14 +792,8 @@ public class MainForm extends JFrame implements ActionListener {
 				int row = mtable.getSelectedRow();
 				int column = mtable.getSelectedColumn();
 				System.out.println("row=" + row + ":" + "column=" + column);
-				if (column == 4) {
-					//
-					System.out.println(((JButton) mtable
-							.getValueAt(row, column)).getText());
-					// mMyTableModel.removeRow(row);
-					mMyTableModel.removeRow(row);
-					// System.out.println(mMyTableModel.getRowCount());
-					mtable.updateUI();
+				if (column == 5) {
+					updatetable("delete",row);
 
 				}
 			}
@@ -807,9 +809,9 @@ public class MainForm extends JFrame implements ActionListener {
 				if (defaulttable.getValueAt(row, column) != "") {
 					System.out.println("add data to list");
 					int mindex = row * 5 + column;
-					mMyTableModel.addRow(((Vector) defaultgoodslist.get(mindex)));
-					mtable.updateUI();
-
+					updatetable("insertdefaultgoodslist",mindex);
+//					mMyTableModel.addRow(((Vector) defaultgoodslist.get(mindex)));
+//					mtable.updateUI();
 				}
 			}
 		});
@@ -902,18 +904,41 @@ public class MainForm extends JFrame implements ActionListener {
 		for(int i=0;i<this.allgoodslist.size();i++){
 			String sss = this.allgoodslist.get(i).toString();
 			System.out.println("I : " + i +" is " + sss);
-			if(sss.endsWith(add)){
-				JButton mJButton = new JButton("X");
-				Vector cvector= new Vector((Vector) v.get(i));
-				cvector.add(4,mJButton);
-				mMyTableModel.addRow(cvector);
-				mtable.updateUI();
-				System.out.print(this.allgoodslist);
+			if(sss.equals(add)){
+				updatetable("insertallgoodslist",i);
+//				JButton mJButton = new JButton("X");
+//				Vector cvector= new Vector((Vector) v.get(i));
+//				cvector.add(5,mJButton);
+//				mMyTableModel.addRow(cvector);
+//				mtable.updateUI();
+//				System.out.print(this.allgoodslist);
 				break;
 			}
 		}
 	}
 
+	/**
+	 * params String dealtype "insert","delete"
+	 * params int i :id
+	 * update table when  1:click default table;2:click table list the button X to delete;3;searchbox to insert
+	 * 
+	 * **/
+	public void updatetable(String s,int i){
+		System.out.println("public void updatetable(String s,int i)");
+		String dtype=s;
+		int id=i;
+		//
+		if(dtype.equals("delete")){
+			mMyTableModel.removeRow(id);
+		}else if(dtype.equals("insertdefaultgoodslist")){
+			mMyTableModel.addRow(((Vector) defaultgoodslist.get(id)));
+			
+		}else if(dtype.equals("insertallgoodslist")){
+			mMyTableModel.addRow(((Vector) allgoodslist.get(id)));
+		}
+		mtable.updateUI();
+	}
+	
 	//no use
 	public void changeGoodsSearchList(String m) {
 		mJComboBox.hidePopup();

@@ -97,28 +97,28 @@ public class TestConn {
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			stmt.executeUpdate("drop table if exists 'goods'");
-			stmt.executeUpdate("create table goods(id INTEGER PRIMARY KEY AUTOINCREMENT,goods_id integer,goods_name varchar(100),goods_price,tax_price,bar_code varchar(100))");
+			stmt.executeUpdate("create table goods(id INTEGER PRIMARY KEY AUTOINCREMENT,goods_id integer,goods_name varchar(300),goods_price,tax_price,handle varchar(100),sku varchar(100))");
 			System.out.println("ok");
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,1,'SkinCare',59.13,8.87,'CN100001')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,2,'Bubble XS S',30.13,2.87,'CN100002')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,3,'Bubble XS M',69.13,3.87,'CN100003')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,4,'Bubble XS L',79.13,4.87,'CN100004')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,5,'General Item',99.13,5.87,'CN100005')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,6,'程光快递大陆奶粉',89.13,6.87,'CN100006')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,7,'程光快递保健品',29.13,7.87,'CN100007')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,8,'平安保健品',49.13,8.87,'CN100008')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,9,'平安大陆奶粉',39.13,9.87,'CN100009')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,10,'程光KARICARE AP4整箱',9.13,1.87,'CN100010')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,1,'SkinCare',59.13,8.87,'CN100001','1289482910492')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,3,'Bubble XS S',30.13,2.87,'CN100002','1289482911212')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,4,'Bubble XS M',69.13,3.87,'CN100003','1289482910491')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,6,'Bubble XS L',79.13,4.87,'CN100004','1289482910494')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,7,'General Item',99.13,5.87,'CN100005','1289482910495')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,9,'程光快递大陆奶粉',89.13,6.87,'CN100006','1289482910496')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,10,'程光快递保健品',29.13,7.87,'CN100007','1289482910497')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,11,'平安保健品',49.13,8.87,'CN100008','1289482910498')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,14,'平安大陆奶粉',39.13,9.87,'CN100009','1289482910499')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods values(null,20,'程光KARICARE AP4整箱',9.13,1.87,'CN100010','1289482910410')"));
 			
 			conn.commit();
 			stmt.executeUpdate("drop table if exists 'goods_default'");
-			stmt.executeUpdate("create table goods_default(id INTEGER PRIMARY KEY AUTOINCREMENT,goods_id integer,goods_name varchar(100),goods_price,tax_price,bar_code varchar(100))");
-			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,1,'SkinCare',59.13,8.87,'CN100001')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,2,'Bubble XS S',30.13,2.87,'CN100002')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,3,'Bubble XS M',69.13,3.87,'CN100003')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,4,'Bubble XS L',79.13,4.87,'CN100004')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,5,'General Item',99.13,5.87,'CN100005')"));
-			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,6,'程光快递大陆奶粉',89.13,6.87,'CN100006')"));
+			stmt.executeUpdate("create table goods_default(id INTEGER PRIMARY KEY AUTOINCREMENT,goods_id integer,goods_name varchar(300),goods_price,tax_price,handle varchar(100),sku varchar(100))");
+			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,1,'SkinCare',59.13,8.87,'CN100001','1289482910492')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,3,'Bubble XS S',30.13,2.87,'CN100002','1289482911212')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,4,'Bubble XS M',69.13,3.87,'CN100003','1289482910491')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,5,'Bubble XS L',79.13,4.87,'CN100004','1289482910494')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,7,'General Item',99.13,5.87,'CN100005','1289482910495')"));
+			System.out.println(stmt.executeUpdate("INSERT INTO goods_default values(null,9,'程光快递大陆奶粉',89.13,6.87,'CN100006','1289482910496')"));
 			conn.commit();
 			
 			System.out.println("INSERT FINISHED");
@@ -130,7 +130,6 @@ public class TestConn {
 				System.out.println(rset.getString("goods_name"));
 				System.out.println(rset.getString("goods_price"));
 				System.out.println(rset.getString("tax_price"));
-				System.out.println(rset.getString("bar_code"));
 			}
 			if (rset != null) {
 				rset.close();
@@ -154,7 +153,6 @@ public class TestConn {
 				System.out.println(rset.getString("goods_name"));
 				System.out.println(rset.getString("goods_price"));
 				System.out.println(rset.getString("tax_price"));
-				System.out.println(rset.getString("bar_code"));
 			}
 			conn.commit();
 			System.out.println(new java.util.Date());
