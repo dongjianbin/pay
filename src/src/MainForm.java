@@ -837,11 +837,8 @@ public class MainForm extends JFrame implements ActionListener {
 					//Add 
 					addsearchtexttolist();
 //					String  s = searchTextField.getText().toString();
-					
 				}
-				
 			}
-			
 		});
 		mJComboBox.addItemListener(new ItemListener(){
 			public void itemStateChanged(ItemEvent event) {
