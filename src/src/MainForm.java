@@ -123,12 +123,17 @@ public class MainForm extends JFrame implements ActionListener {
 	private Document mDocument;
 	private boolean  keyflag;
 	private HashMap goods_id2id,id2goods_id,defaultid2goods_id,goods_id2defaultid;
+	private Vector ordervector, cusomervector;
+	private int gstflag;
+	private double discount;
 
 	public MainForm() {
 		goods_id2id = new HashMap();
 		id2goods_id = new HashMap();
 		defaultid2goods_id = new HashMap();
 		goods_id2defaultid = new HashMap();
+		this.initorder();
+		this.initcustomer();
 		this.initForm();
 
 	}
@@ -923,20 +928,86 @@ public class MainForm extends JFrame implements ActionListener {
 	 * update table when  1:click default table;2:click table list the button X to delete;3;searchbox to insert
 	 * 
 	 * **/
-	public void updatetable(String s,int i){
+	public void updatetable(String s, int i) {
 		System.out.println("public void updatetable(String s,int i)");
-		String dtype=s;
-		int id=i;
+		String dtype = s;
+		int id = i;
 		//
-		if(dtype.equals("delete")){
-			mMyTableModel.removeRow(id);
-		}else if(dtype.equals("insertdefaultgoodslist")){
-			mMyTableModel.addRow(((Vector) defaultgoodslist.get(id)));
+		if (dtype.equals("delete")) {
 			
-		}else if(dtype.equals("insertallgoodslist")){
-			mMyTableModel.addRow(((Vector) allgoodslist.get(id)));
+			mMyTableModel.removeRow(id);
+		} else {
+			Vector fVector = new Vector();
+			if (dtype.equals("insertdefaultgoodslist")) {
+				fVector = (Vector) defaultgoodslist.get(id);
+
+			} else if (dtype.equals("insertallgoodslist")) {
+				fVector = (Vector) allgoodslist.get(id);
+			}
+			Vector ffVector= new Vector();
+			ffVector.add(0,fVector.get(1));
+			ffVector.add(1,1);
+			ffVector.add(2,fVector.get(2));
+			ffVector.add(3,fVector.get(3));
+			ffVector.add(4,fVector.get(3));
+			ffVector.add(5,new JButton("X"));
+			mMyTableModel.addRow(ffVector);
 		}
 		mtable.updateUI();
+		updateorder();
+	}
+	
+	
+	/**
+	 * init order variables
+	 * 
+	 * **/
+	public void initorder(){
+		this.ordervector = new Vector();
+		this.gstflag = 0;
+		this.discount = 1;
+		
+	}
+	
+	/**
+	 * init customer variables
+	 * 
+	 * **/
+	public void initcustomer(){
+		this.cusomervector = new Vector();
+	}
+	
+	/**
+	 * update order and labels; 
+	 * 
+	 * update ordervector
+	 * update value of lavels in the frame; 
+	 * 
+	 * **/
+	public void updateorder(){
+		double alltold=0;
+		
+		
+		updatelabel();
+	}
+	
+	/**
+	 * calc the totalgoods
+	 * **/
+	public double calcalltoldbyallgoodslist(){
+		double s =0;
+		
+		
+		return s;
+		
+	}
+	
+	/**
+	 * update total label
+	 * **/
+	public void updatelabel(){
+		
+		
 	}
 	
 	//no use
@@ -963,7 +1034,6 @@ public class MainForm extends JFrame implements ActionListener {
 //			mJComboBox.updateUI();
 			mJComboBox.showPopup();
 		}
-
 	}
 
 	// Main program simply constructs the ButtonDemo
