@@ -124,8 +124,10 @@ public class MainForm extends JFrame implements ActionListener {
 	private boolean  keyflag;
 	private HashMap goods_id2id,id2goods_id,defaultid2goods_id,goods_id2defaultid;
 	private Vector ordervector, cusomervector;
-	private int gstflag;
+	private int gstincflag;
 	private double discount;
+	private double total_topay,total_subtotal,total_tax,total_total;
+	private JLabel lbl_Money_Topay,	lbl_Money_Subtotal,	lbl_Money_Tax,lbl_Money_Total;
 
 	public MainForm() {
 		goods_id2id = new HashMap();
@@ -135,6 +137,7 @@ public class MainForm extends JFrame implements ActionListener {
 		this.initorder();
 		this.initcustomer();
 		this.initForm();
+		this.searchTextFieldsetfocus();
 
 	}
 
@@ -355,7 +358,7 @@ public class MainForm extends JFrame implements ActionListener {
 		lbl_Topay.setMaximumSize(new Dimension(3, 3));
 		panel_Main_Left_Btm_Top_Btm_Right_Left_1.add(lbl_Topay);
 
-		JLabel lbl_Money_Topay = new JLabel("$0.00");
+		lbl_Money_Topay = new JLabel("$0.00");
 		lbl_Money_Topay.setPreferredSize(new Dimension(1, 15));
 		lbl_Money_Topay.setMinimumSize(new Dimension(3, 3));
 		lbl_Money_Topay.setMaximumSize(new Dimension(3, 3));
@@ -376,7 +379,7 @@ public class MainForm extends JFrame implements ActionListener {
 		lbl_Subtotal.setMaximumSize(new Dimension(3, 3));
 		panel_Main_Left_Btm_Top_Btm_Right_Left_2.add(lbl_Subtotal);
 
-		JLabel lbl_Money_Subtotal = new JLabel("$0.00");
+		lbl_Money_Subtotal = new JLabel("$0.00");
 		lbl_Money_Subtotal.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_Money_Subtotal.setPreferredSize(new Dimension(1, 15));
 		lbl_Money_Subtotal.setMinimumSize(new Dimension(5, 3));
@@ -396,7 +399,7 @@ public class MainForm extends JFrame implements ActionListener {
 		lbl_Tax.setMaximumSize(new Dimension(3, 3));
 		panel_Main_Left_Btm_Top_Btm_Right_Left_3.add(lbl_Tax);
 
-		JLabel lbl_Money_Tax = new JLabel("$0.00");
+		lbl_Money_Tax = new JLabel("$0.00");
 		lbl_Money_Tax.setPreferredSize(new Dimension(1, 15));
 		lbl_Money_Tax.setMinimumSize(new Dimension(3, 3));
 		lbl_Money_Tax.setMaximumSize(new Dimension(3, 3));
@@ -415,7 +418,7 @@ public class MainForm extends JFrame implements ActionListener {
 		lbl_Total.setMaximumSize(new Dimension(3, 3));
 		panel_Main_Left_Btm_Top_Btm_Right_Left_4.add(lbl_Total);
 
-		JLabel lbl_Money_Total = new JLabel("$0.00");
+		lbl_Money_Total = new JLabel("$0.00");
 		lbl_Money_Total.setPreferredSize(new Dimension(1, 15));
 		lbl_Money_Total.setMinimumSize(new Dimension(3, 3));
 		lbl_Money_Total.setMaximumSize(new Dimension(3, 3));
@@ -579,11 +582,11 @@ public class MainForm extends JFrame implements ActionListener {
 		String sql="";
 		if(gtype.endsWith("allgoodslist")){
 			System.out.println("allgoodslist");
-			sql="SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku FROM goods";
+			sql="SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods";
 			
 		}else if(gtype.endsWith("defaultgoodslist")){
 			System.out.println("defaultgoodslist");
-			sql="SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku FROM goods_default";
+			sql="SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods_default";
 		}
 
 		Connection conn = null;
@@ -607,15 +610,16 @@ public class MainForm extends JFrame implements ActionListener {
 				v.add(4, rset.getString("tax_price"));
 				v.add(5, rset.getString("handle"));
 				v.add(6, rset.getString("sku"));
+				v.add(7, rset.getString("all_price"));
 				gsVector.add(v);
-				if(gtype.endsWith("defaultgoodslist")){
+				if(gtype.equals("defaultgoodslist")){
 					System.out.println("rset.getInt(goods_id)"+rset.getInt("goods_id"));
 					System.out.println("rsize"+gsVector.size());
 					defaultid2goods_id.put( gsVector.size()-1,rset.getInt("goods_id"));
 					goods_id2defaultid.put(rset.getInt("goods_id"), (int) gsVector.size()-1);
 					
 				}
-				else if(gtype.endsWith("allgoodslist")){
+				else if(gtype.equals("allgoodslist")){
 					goods_id2id.put(rset.getInt("goods_id"), gsVector.size()-1);
 					id2goods_id.put(gsVector.size()-1,rset.getInt("goods_id"));
 				}
@@ -899,6 +903,7 @@ public class MainForm extends JFrame implements ActionListener {
 		String add= searchTextField.getText().toString();
 		if(add.length()==0){
 			System.out.println("length is 0");
+			searchTextFieldsetfocus();
 			return;
 		}
 		
@@ -964,7 +969,7 @@ public class MainForm extends JFrame implements ActionListener {
 	 * **/
 	public void initorder(){
 		this.ordervector = new Vector();
-		this.gstflag = 0;
+		this.gstincflag = 1;
 		this.discount = 1;
 		
 	}
@@ -985,28 +990,55 @@ public class MainForm extends JFrame implements ActionListener {
 	 * 
 	 * **/
 	public void updateorder(){
+		double topay=0;
 		double alltold=0;
-		
-		
+		double subtold=0;
+		double taxtold=0;
+		this.ordervector.clear();
+		for(int i=0;i<mMyTableModel.getRowCount();i++){
+			System.out.println("i is :"+i);
+			int good_id=(int) mMyTableModel.getValueAt(i, 0);
+			int good_count=(int) mMyTableModel.getValueAt(i, 1);
+			int tgood_id=(int) this.goods_id2id.get(good_id);
+			Vector v = new Vector((Vector) this.allgoodslist.get(tgood_id));
+			v.add(good_count);
+			subtold+=Double.parseDouble((String) v.get(3)) * good_count;
+			taxtold+=Double.parseDouble((String) v.get(4)) * good_count;
+			this.ordervector.add(v);
+		}
+		if(this.gstincflag==0){
+			taxtold=0;
+		}
+		subtold=Double.parseDouble(String.format("%.2f",subtold));
+		taxtold=Double.parseDouble(String.format("%.2f",taxtold));
+		alltold=(subtold+taxtold)*this.discount;
+		alltold=Double.parseDouble(String.format("%.2f",alltold));
+		topay=alltold;
+		System.out.println("subtotal : " + subtold+"taxtotal : " + taxtold + "alltotal : " + alltold);
+		this.total_subtotal=subtold;
+		this.total_tax=taxtold;
+		this.total_topay=topay;
+		this.total_total=alltold;
 		updatelabel();
 	}
 	
-	/**
-	 * calc the totalgoods
-	 * **/
-	public double calcalltoldbyallgoodslist(){
-		double s =0;
-		
-		
-		return s;
-		
-	}
 	
 	/**
 	 * update total label
 	 * **/
 	public void updatelabel(){
-		
+		this.lbl_Money_Topay.setText("$"+String.valueOf(this.total_topay));
+		this.lbl_Money_Subtotal.setText("$"+String.valueOf(this.total_subtotal));
+		this.lbl_Money_Tax.setText("$"+String.valueOf(this.total_tax));
+		this.lbl_Money_Total.setText("$"+String.valueOf(this.total_total));
+		this.searchTextFieldsetfocus();
+	}
+	
+	public void searchTextFieldsetfocus(){
+
+		searchTextField.requestFocus();
+		searchTextField.setSelectionStart(0);
+		searchTextField.setSelectionEnd(searchTextField.getText().toString().length());
 		
 	}
 	
@@ -1061,13 +1093,20 @@ public class MainForm extends JFrame implements ActionListener {
 			System.out.print("in mJcomboBox");
 
 		} else if (e.getSource() == btn_Pay) {
-			System.out.print("in mJcomboBox");
+			System.out.println("btn_Pay click");
 //			changeGoodsSearchList("B");
 		} else if (e.getSource() == btn_Discount) {
 			System.out.print("in mJcomboBox");
 //			changeGoodsSearchList("a");
 		} else if (e.getSource() == btn_X) {
-			System.out.print("in mJcomboBox");
+			System.out.print("in btn_X");
+			if(this.gstincflag==0){
+				this.gstincflag=1;
+			}
+			else{
+				this.gstincflag=0;
+			}
+			this.updateorder();
 //			changeGoodsSearchList("87");
 		}
 
@@ -1078,6 +1117,7 @@ public class MainForm extends JFrame implements ActionListener {
 		app.setTitle("Test");
 		app.setSize(900, 600);
 		app.show();
+		app.searchTextFieldsetfocus();
 		// app.changeGoodsSearchList("87");
 
 	}
