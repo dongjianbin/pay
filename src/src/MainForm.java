@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.NumberFormat;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -23,6 +24,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
@@ -121,13 +123,15 @@ public class MainForm extends JFrame implements ActionListener {
 	private JComboBox mJComboBox;
 	private DefaultComboBoxModel mDefaultComboBoxModel;
 	private Document mDocument;
-	private boolean  keyflag;
-	private HashMap goods_id2id,id2goods_id,defaultid2goods_id,goods_id2defaultid;
+	private boolean keyflag;
+	private HashMap goods_id2id, id2goods_id, defaultid2goods_id,
+			goods_id2defaultid;
 	private Vector ordervector, cusomervector;
 	private int gstincflag;
 	private double discount;
-	private double total_topay,total_subtotal,total_tax,total_total;
-	private JLabel lbl_Money_Topay,	lbl_Money_Subtotal,	lbl_Money_Tax,lbl_Money_Total;
+	private double total_topay, total_subtotal, total_tax, total_total;
+	private JLabel lbl_Money_Topay, lbl_Money_Subtotal, lbl_Money_Tax,
+			lbl_Money_Total;
 
 	public MainForm() {
 		goods_id2id = new HashMap();
@@ -562,42 +566,43 @@ public class MainForm extends JFrame implements ActionListener {
 	 */
 	public void initGoodsSearchList() {
 		initAllGoodsList();
-//		searchgoodslist = new Vector();
-//		mDefaultComboBoxModel = new DefaultComboBoxModel(searchgoodslist);
+		// searchgoodslist = new Vector();
+		// mDefaultComboBoxModel = new DefaultComboBoxModel(searchgoodslist);
 		mDefaultComboBoxModel = new DefaultComboBoxModel();
 
 		// mJComboBox = new JAutoCompleteComboBox(model);
-		mJComboBox = new SearchComboBox(mDefaultComboBoxModel, this.allgoodslist);
-//		mJComboBox = new JComboBox(mDefaultComboBoxModel);
+		mJComboBox = new SearchComboBox(mDefaultComboBoxModel,
+				this.allgoodslist);
+		// mJComboBox = new JComboBox(mDefaultComboBoxModel);
 		mJComboBox.setEditable(true);// setEditable(true);
 		mJComboBox.setSelectedIndex(-1);
 
 		panel_Main_Left_Top_Left.add(mJComboBox);
 	}
-	
-	public Vector getgoodslist(String s){
+
+	public Vector getgoodslist(String s) {
 		System.out.println("public Vector getgoodslist(String s)");
 		Vector gsVector = new Vector();
-		String gtype=s;
-		String sql="";
-		if(gtype.endsWith("allgoodslist")){
+		String gtype = s;
+		String sql = "";
+		if (gtype.endsWith("allgoodslist")) {
 			System.out.println("allgoodslist");
-			sql="SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods";
-			
-		}else if(gtype.endsWith("defaultgoodslist")){
+			sql = "SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods";
+
+		} else if (gtype.endsWith("defaultgoodslist")) {
 			System.out.println("defaultgoodslist");
-			sql="SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods_default";
+			sql = "SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods_default";
 		}
 
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rset = null;
-		Config mConfig=new Config();
-		String dbname=mConfig.getDBfullPath();
-		System.out.println("dbname is : "+ dbname);
+		Config mConfig = new Config();
+		String dbname = mConfig.getDBfullPath();
+		System.out.println("dbname is : " + dbname);
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
+			conn = DriverManager.getConnection("jdbc:sqlite:/" + dbname);
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			rset = stmt.executeQuery(sql);
@@ -612,16 +617,20 @@ public class MainForm extends JFrame implements ActionListener {
 				v.add(6, rset.getString("sku"));
 				v.add(7, rset.getString("all_price"));
 				gsVector.add(v);
-				if(gtype.equals("defaultgoodslist")){
-					System.out.println("rset.getInt(goods_id)"+rset.getInt("goods_id"));
-					System.out.println("rsize"+gsVector.size());
-					defaultid2goods_id.put( gsVector.size()-1,rset.getInt("goods_id"));
-					goods_id2defaultid.put(rset.getInt("goods_id"), (int) gsVector.size()-1);
-					
-				}
-				else if(gtype.equals("allgoodslist")){
-					goods_id2id.put(rset.getInt("goods_id"), gsVector.size()-1);
-					id2goods_id.put(gsVector.size()-1,rset.getInt("goods_id"));
+				if (gtype.equals("defaultgoodslist")) {
+					System.out.println("rset.getInt(goods_id)"
+							+ rset.getInt("goods_id"));
+					System.out.println("rsize" + gsVector.size());
+					defaultid2goods_id.put(gsVector.size() - 1,
+							rset.getInt("goods_id"));
+					goods_id2defaultid.put(rset.getInt("goods_id"),
+							(int) gsVector.size() - 1);
+
+				} else if (gtype.equals("allgoodslist")) {
+					goods_id2id.put(rset.getInt("goods_id"),
+							gsVector.size() - 1);
+					id2goods_id.put(gsVector.size() - 1,
+							rset.getInt("goods_id"));
 				}
 			}
 			rset.close();
@@ -634,23 +643,22 @@ public class MainForm extends JFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return gsVector;
 	}
 
 	/**
 	 * params null
 	 * 
-	 * select all data from database
-	 * then add data to Global Var Vector allgoodslist;
-	 * use in func initGoodsSearchList
+	 * select all data from database then add data to Global Var Vector
+	 * allgoodslist; use in func initGoodsSearchList
 	 * 
 	 * */
 	public void initAllGoodsList() {
 		allgoodslist = new Vector();
-		allgoodslist=getgoodslist("allgoodslist");
+		allgoodslist = getgoodslist("allgoodslist");
 	}
-	
+
 	/**
 	 * init the default goods on the right of the panel.
 	 * 
@@ -660,8 +668,8 @@ public class MainForm extends JFrame implements ActionListener {
 
 		String headName[] = { "Count", "Name", "Price", "Price", "Act" };
 		defaultcontent = new Vector();
-		defaultgoodslist=getgoodslist("defaultgoodslist");
-		
+		defaultgoodslist = getgoodslist("defaultgoodslist");
+
 		if (defaultgoodslist.size() > 0) {
 			System.out.println(defaultgoodslist.size());
 			int j = 0;
@@ -725,49 +733,49 @@ public class MainForm extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * init table below the searchtextfield. 
+	 * init table below the searchtextfield.
 	 * 
 	 * **/
-	
-	
+
 	void initTable() {
 
-		String headName[] = {"goods_id","Count", "Name", "Price", "Price", "Act" };
+		String headName[] = { "goods_id", "Count", "Name", "Price", "Price",
+				"Act" };
 		String path = "";
 		JButton mJButton = new JButton("X");
 		content = new Vector();
 
-//		Connection conn = null;
-//		Statement stmt = null;
-//		ResultSet rset = null;
-//		Config mConfig=new Config();
-//		String dbname=mConfig.getDBfullPath();
-//		System.out.println("dbname is : "+ dbname);
-//		try {
-//			Class.forName("org.sqlite.JDBC");
-//			conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
-//			conn.setAutoCommit(false);
-//			stmt = conn.createStatement();
-//			rset = stmt.executeQuery("SELECT * FROM goods");
-//			while (rset.next()) {
-//				Vector v = new Vector(5);
-//				v.add(0, rset.getInt("id"));
-//				v.add(1, rset.getString("goods_name"));
-//				v.add(2, rset.getString("goods_price"));
-//				v.add(3, rset.getString("tax_price"));
-//				v.add(4, mJButton);
-//				content.add(v);
-//			}
-//			rset.close();
-//			stmt.close();
-//			conn.close();
-//		} catch (ClassNotFoundException cnfe) {
-//			System.out.println("can't find class drive " + cnfe.getMessage());
-//			System.exit(-1);
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		// Connection conn = null;
+		// Statement stmt = null;
+		// ResultSet rset = null;
+		// Config mConfig=new Config();
+		// String dbname=mConfig.getDBfullPath();
+		// System.out.println("dbname is : "+ dbname);
+		// try {
+		// Class.forName("org.sqlite.JDBC");
+		// conn = DriverManager.getConnection("jdbc:sqlite:/"+dbname);
+		// conn.setAutoCommit(false);
+		// stmt = conn.createStatement();
+		// rset = stmt.executeQuery("SELECT * FROM goods");
+		// while (rset.next()) {
+		// Vector v = new Vector(5);
+		// v.add(0, rset.getInt("id"));
+		// v.add(1, rset.getString("goods_name"));
+		// v.add(2, rset.getString("goods_price"));
+		// v.add(3, rset.getString("tax_price"));
+		// v.add(4, mJButton);
+		// content.add(v);
+		// }
+		// rset.close();
+		// stmt.close();
+		// conn.close();
+		// } catch (ClassNotFoundException cnfe) {
+		// System.out.println("can't find class drive " + cnfe.getMessage());
+		// System.exit(-1);
+		// } catch (SQLException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 
 		mMyTableModel = new PayTableModel(headName, content);
 		mtable = new JTable(mMyTableModel);
@@ -779,8 +787,9 @@ public class MainForm extends JFrame implements ActionListener {
 				ListSelectionModel.SINGLE_SELECTION);
 		mtable.getTableHeader().setReorderingAllowed(false);
 		mtable.getTableHeader().setResizingAllowed(false);
-		mtable.getTableHeader().getColumnModel().getColumn(0).setMaxWidth(20);  
-		mtable.getTableHeader().getColumnModel().getColumn(0).setPreferredWidth(20);
+		mtable.getTableHeader().getColumnModel().getColumn(0).setMaxWidth(20);
+		mtable.getTableHeader().getColumnModel().getColumn(0)
+				.setPreferredWidth(20);
 		mtable.getTableHeader().getColumnModel().getColumn(0).setMinWidth(20);
 		mtable.getColumnModel().getColumn(0).setMaxWidth(0);
 		mtable.getColumnModel().getColumn(0).setPreferredWidth(0);
@@ -802,7 +811,7 @@ public class MainForm extends JFrame implements ActionListener {
 				int column = mtable.getSelectedColumn();
 				System.out.println("row=" + row + ":" + "column=" + column);
 				if (column == 5) {
-					updatetable("delete",row);
+					updatetable("delete", row);
 
 				}
 			}
@@ -818,119 +827,125 @@ public class MainForm extends JFrame implements ActionListener {
 				if (defaulttable.getValueAt(row, column) != "") {
 					System.out.println("add data to list");
 					int mindex = row * 5 + column;
-					updatetable("insertdefaultgoodslist",mindex);
-//					mMyTableModel.addRow(((Vector) defaultgoodslist.get(mindex)));
-//					mtable.updateUI();
+					updatetable("insertdefaultgoodslist", mindex);
+					// mMyTableModel.addRow(((Vector)
+					// defaultgoodslist.get(mindex)));
+					// mtable.updateUI();
 				}
 			}
 		});
 		searchTextField = (JTextField) mJComboBox.getEditor()
 				.getEditorComponent();
-		searchTextField.addKeyListener(new KeyListener(){
+		searchTextField.addKeyListener(new KeyListener() {
 			public void keyTyped(KeyEvent e) {
 				System.out.println("public void keyTyped(KeyEvent e Main)");
-				
+
 			}
+
 			public void keyPressed(KeyEvent e) {
 				System.out.println("public void keyPressed(KeyEvent e Main)");
-				if(e.getKeyCode()==38 || e.getKeyCode()==40){
-					keyflag=true;
-				}else{
-					keyflag=false;
+				if (e.getKeyCode() == 38 || e.getKeyCode() == 40) {
+					keyflag = true;
+				} else {
+					keyflag = false;
 				}
 			}
+
 			public void keyReleased(KeyEvent e) {
 				System.out.println("public void keyReleased(KeyEvent e Main)");
-				System.out.println("keyreleased is "+ e.getKeyCode());
+				System.out.println("keyreleased is " + e.getKeyCode());
 
-				if(e.getKeyCode()==KeyEvent.VK_ENTER){
-					System.out.println("press enter to select ,start to add to list");
-					//Add 
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					System.out
+							.println("press enter to select ,start to add to list");
+					// Add
 					addsearchtexttolist();
-//					String  s = searchTextField.getText().toString();
+					// String s = searchTextField.getText().toString();
 				}
 			}
 		});
-		mJComboBox.addItemListener(new ItemListener(){
+		mJComboBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent event) {
-				System.out.println("public void itemStateChanged(ItemEvent event) main");
-				if(event.getStateChange()==ItemEvent.SELECTED){
+				System.out
+						.println("public void itemStateChanged(ItemEvent event) main");
+				if (event.getStateChange() == ItemEvent.SELECTED) {
 					System.out.println(mJComboBox.getItemCount());
-					if(!keyflag){
-						System.out.println("click to select , start to add to list");
-						//Add
+					if (!keyflag) {
+						System.out
+								.println("click to select , start to add to list");
+						// Add
 						addsearchtexttolist();
 					}
 				}
 			}
-			
+
 		});
 
-//		searchTextField = (JTextField) mJComboBox.getEditor()
-//				.getEditorComponent();
-//		mDocument = searchTextField.getDocument();
-//		mDocument.addDocumentListener(new DocumentListener() {
-//			public void insertUpdate(DocumentEvent e) {
-//				System.out.println("insertUpdate");
-//				String m = searchTextField.getText();
-//				System.out.println("Input String is : " + m);
-//				changeGoodsSearchList(m);
-//
-//			}
-//
-//			public void removeUpdate(DocumentEvent e) {
-//				System.out.println("removeUpdate");
-//				String m = searchTextField.getText();
-//				System.out.println("Input String is : " + m);
-//				changeGoodsSearchList(m);
-//			}
-//
-//			public void changedUpdate(DocumentEvent e) {
-//				System.out.println("changedUpdate");
-//			}
-//		});
+		// searchTextField = (JTextField) mJComboBox.getEditor()
+		// .getEditorComponent();
+		// mDocument = searchTextField.getDocument();
+		// mDocument.addDocumentListener(new DocumentListener() {
+		// public void insertUpdate(DocumentEvent e) {
+		// System.out.println("insertUpdate");
+		// String m = searchTextField.getText();
+		// System.out.println("Input String is : " + m);
+		// changeGoodsSearchList(m);
+		//
+		// }
+		//
+		// public void removeUpdate(DocumentEvent e) {
+		// System.out.println("removeUpdate");
+		// String m = searchTextField.getText();
+		// System.out.println("Input String is : " + m);
+		// changeGoodsSearchList(m);
+		// }
+		//
+		// public void changedUpdate(DocumentEvent e) {
+		// System.out.println("changedUpdate");
+		// }
+		// });
 
 	}
-	
+
 	/**
-	 * params null
-	 * add goods which is in the searchtext to the tablelist
+	 * params null add goods which is in the searchtext to the tablelist
 	 * 
 	 * **/
-	
-	public void addsearchtexttolist(){
+
+	public void addsearchtexttolist() {
 		System.out.println("public void addsearchtexttolist()");
-		String add= searchTextField.getText().toString();
-		if(add.length()==0){
+		String add = searchTextField.getText().toString();
+		if (add.length() == 0) {
 			System.out.println("length is 0");
 			searchTextFieldsetfocus();
 			return;
 		}
-		
+
 		searchTextField.setSelectionStart(0);
-		searchTextField.setSelectionEnd(searchTextField.getText().toString().length());
+		searchTextField.setSelectionEnd(searchTextField.getText().toString()
+				.length());
 		System.out.println("to add string is : " + add);
 		Vector v = new Vector(this.allgoodslist);
-		for(int i=0;i<this.allgoodslist.size();i++){
+		for (int i = 0; i < this.allgoodslist.size(); i++) {
 			String sss = this.allgoodslist.get(i).toString();
-			System.out.println("I : " + i +" is " + sss);
-			if(sss.equals(add)){
-				updatetable("insertallgoodslist",i);
-//				JButton mJButton = new JButton("X");
-//				Vector cvector= new Vector((Vector) v.get(i));
-//				cvector.add(5,mJButton);
-//				mMyTableModel.addRow(cvector);
-//				mtable.updateUI();
-//				System.out.print(this.allgoodslist);
+			System.out.println("I : " + i + " is " + sss);
+			if (sss.equals(add)) {
+				updatetable("insertallgoodslist", i);
+				// JButton mJButton = new JButton("X");
+				// Vector cvector= new Vector((Vector) v.get(i));
+				// cvector.add(5,mJButton);
+				// mMyTableModel.addRow(cvector);
+				// mtable.updateUI();
+				// System.out.print(this.allgoodslist);
 				break;
 			}
 		}
 	}
 
 	/**
-	 * params String dealtype "insert","delete"
-	 * params int i :id
-	 * update table when  1:click default table;2:click table list the button X to delete;3;searchbox to insert
+	 * params String dealtype "insert","delete" params int i :id update table
+	 * when 1:click default table;2:click table list the button X to
+	 * delete;3;searchbox to insert
 	 * 
 	 * **/
 	public void updatetable(String s, int i) {
@@ -939,7 +954,7 @@ public class MainForm extends JFrame implements ActionListener {
 		int id = i;
 		//
 		if (dtype.equals("delete")) {
-			
+
 			mMyTableModel.removeRow(id);
 		} else {
 			Vector fVector = new Vector();
@@ -949,103 +964,103 @@ public class MainForm extends JFrame implements ActionListener {
 			} else if (dtype.equals("insertallgoodslist")) {
 				fVector = (Vector) allgoodslist.get(id);
 			}
-			Vector ffVector= new Vector();
-			ffVector.add(0,fVector.get(1));
-			ffVector.add(1,1);
-			ffVector.add(2,fVector.get(2));
-			ffVector.add(3,fVector.get(3));
-			ffVector.add(4,fVector.get(3));
-			ffVector.add(5,new JButton("X"));
+			Vector ffVector = new Vector();
+			ffVector.add(0, fVector.get(1));
+			ffVector.add(1, 1);
+			ffVector.add(2, fVector.get(2));
+			ffVector.add(3, fVector.get(3));
+			ffVector.add(4, fVector.get(3));
+			ffVector.add(5, new JButton("X"));
 			mMyTableModel.addRow(ffVector);
 		}
 		mtable.updateUI();
 		updateorder();
 	}
-	
-	
+
 	/**
 	 * init order variables
 	 * 
 	 * **/
-	public void initorder(){
+	public void initorder() {
 		this.ordervector = new Vector();
 		this.gstincflag = 1;
 		this.discount = 1;
-		
+
 	}
-	
+
 	/**
 	 * init customer variables
 	 * 
 	 * **/
-	public void initcustomer(){
+	public void initcustomer() {
 		this.cusomervector = new Vector();
 	}
-	
+
 	/**
-	 * update order and labels; 
+	 * update order and labels;
 	 * 
-	 * update ordervector
-	 * update value of lavels in the frame; 
+	 * update ordervector update value of lavels in the frame;
 	 * 
 	 * **/
-	public void updateorder(){
-		double topay=0;
-		double alltold=0;
-		double subtold=0;
-		double taxtold=0;
+	public void updateorder() {
+		double topay = 0;
+		double alltold = 0;
+		double subtold = 0;
+		double taxtold = 0;
 		this.ordervector.clear();
-		for(int i=0;i<mMyTableModel.getRowCount();i++){
-			System.out.println("i is :"+i);
-			int good_id=(int) mMyTableModel.getValueAt(i, 0);
-			int good_count=(int) mMyTableModel.getValueAt(i, 1);
-			int tgood_id=(int) this.goods_id2id.get(good_id);
+		for (int i = 0; i < mMyTableModel.getRowCount(); i++) {
+			System.out.println("i is :" + i);
+			int good_id = (int) mMyTableModel.getValueAt(i, 0);
+			int good_count = (int) mMyTableModel.getValueAt(i, 1);
+			int tgood_id = (int) this.goods_id2id.get(good_id);
 			Vector v = new Vector((Vector) this.allgoodslist.get(tgood_id));
 			v.add(good_count);
-			subtold+=Double.parseDouble((String) v.get(3)) * good_count;
-			taxtold+=Double.parseDouble((String) v.get(4)) * good_count;
+			subtold += Double.parseDouble((String) v.get(3)) * good_count;
+			taxtold += Double.parseDouble((String) v.get(4)) * good_count;
 			this.ordervector.add(v);
 		}
-		if(this.gstincflag==0){
-			taxtold=0;
+		if (this.gstincflag == 0) {
+			taxtold = 0;
 		}
-		subtold=Double.parseDouble(String.format("%.2f",subtold));
-		taxtold=Double.parseDouble(String.format("%.2f",taxtold));
-		alltold=(subtold+taxtold)*this.discount;
-		alltold=Double.parseDouble(String.format("%.2f",alltold));
-		topay=alltold;
-		System.out.println("subtotal : " + subtold+"taxtotal : " + taxtold + "alltotal : " + alltold);
-		this.total_subtotal=subtold;
-		this.total_tax=taxtold;
-		this.total_topay=topay;
-		this.total_total=alltold;
+		subtold = Double.parseDouble(String.format("%.2f", subtold));
+		taxtold = Double.parseDouble(String.format("%.2f", taxtold));
+		alltold = (subtold + taxtold) * this.discount;
+		alltold = Double.parseDouble(String.format("%.2f", alltold));
+		topay = alltold;
+		System.out.println("subtotal : " + subtold + "taxtotal : " + taxtold
+				+ "alltotal : " + alltold);
+		this.total_subtotal = subtold;
+		this.total_tax = taxtold;
+		this.total_topay = topay;
+		this.total_total = alltold;
 		updatelabel();
 	}
-	
-	
+
 	/**
 	 * update total label
 	 * **/
-	public void updatelabel(){
-		this.lbl_Money_Topay.setText("$"+String.valueOf(this.total_topay));
-		this.lbl_Money_Subtotal.setText("$"+String.valueOf(this.total_subtotal));
-		this.lbl_Money_Tax.setText("$"+String.valueOf(this.total_tax));
-		this.lbl_Money_Total.setText("$"+String.valueOf(this.total_total));
+	public void updatelabel() {
+		this.lbl_Money_Topay.setText("$" + String.valueOf(this.total_topay));
+		this.lbl_Money_Subtotal.setText("$"
+				+ String.valueOf(this.total_subtotal));
+		this.lbl_Money_Tax.setText("$" + String.valueOf(this.total_tax));
+		this.lbl_Money_Total.setText("$" + String.valueOf(this.total_total));
 		this.searchTextFieldsetfocus();
 	}
-	
-	public void searchTextFieldsetfocus(){
+
+	public void searchTextFieldsetfocus() {
 
 		searchTextField.requestFocus();
 		searchTextField.setSelectionStart(0);
-		searchTextField.setSelectionEnd(searchTextField.getText().toString().length());
-		
+		searchTextField.setSelectionEnd(searchTextField.getText().toString()
+				.length());
+
 	}
-	
-	//no use
+
+	// no use
 	public void changeGoodsSearchList(String m) {
 		mJComboBox.hidePopup();
-//		searchgoodslist.clear();
+		// searchgoodslist.clear();
 		searchgoodslist.removeAllElements();
 		searchgoodslist = new Vector();
 		if (m.length() != 0) {
@@ -1059,11 +1074,14 @@ public class MainForm extends JFrame implements ActionListener {
 					searchgoodslist.addElement(allgoodslist.get(i));
 				}
 			}
-//			 mDefaultComboBoxModel2 
-//			 ComboBoxModel mDefaultComboBoxModel2 = mJComboBox.getModel();//new DefaultComboBoxModel(searchgoodslist);
-//			DefaultComboBoxModel mDefaultComboBoxModel2 =new DefaultComboBoxModel(searchgoodslist);
+			// mDefaultComboBoxModel2
+			// ComboBoxModel mDefaultComboBoxModel2 =
+			// mJComboBox.getModel();//new
+			// DefaultComboBoxModel(searchgoodslist);
+			// DefaultComboBoxModel mDefaultComboBoxModel2 =new
+			// DefaultComboBoxModel(searchgoodslist);
 			mJComboBox.setModel(new DefaultComboBoxModel(searchgoodslist));
-//			mJComboBox.updateUI();
+			// mJComboBox.updateUI();
 			mJComboBox.showPopup();
 		}
 	}
@@ -1075,7 +1093,7 @@ public class MainForm extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btn_Add) {
 			addsearchtexttolist();
-//			 System.exit(0);
+			// System.exit(0);
 		} else if (e.getSource() == btn_Logout) {
 			LoginForm mLoginForm = new LoginForm();
 			mLoginForm.setTitle("Login");
@@ -1094,20 +1112,29 @@ public class MainForm extends JFrame implements ActionListener {
 
 		} else if (e.getSource() == btn_Pay) {
 			System.out.println("btn_Pay click");
-//			changeGoodsSearchList("B");
+			// changeGoodsSearchList("B");
 		} else if (e.getSource() == btn_Discount) {
-			System.out.print("in mJcomboBox");
-//			changeGoodsSearchList("a");
+			System.out.println("in mJcomboBox");
+			String s = JOptionPane.showInputDialog(null,
+					"Discount [ percentage or $ amount ]\nE.g. 20% or 2.5 ", 1);
+			if(s.endsWith("%")){
+				Double k = new Double(s.substring(0,s.indexOf("%")))/100;
+			}
+			Double ss = Double.valueOf(s);
+			NumberFormat nt = NumberFormat.getPercentInstance();
+			nt.setMinimumFractionDigits(2);
+			String sss = nt.format(ss);
+			System.out.print(sss);
+			// changeGoodsSearchList("a");
 		} else if (e.getSource() == btn_X) {
 			System.out.print("in btn_X");
-			if(this.gstincflag==0){
-				this.gstincflag=1;
-			}
-			else{
-				this.gstincflag=0;
+			if (this.gstincflag == 0) {
+				this.gstincflag = 1;
+			} else {
+				this.gstincflag = 0;
 			}
 			this.updateorder();
-//			changeGoodsSearchList("87");
+			// changeGoodsSearchList("87");
 		}
 
 	}
