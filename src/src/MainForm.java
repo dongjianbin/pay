@@ -22,12 +22,14 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
@@ -128,10 +130,13 @@ public class MainForm extends JFrame implements ActionListener {
 			goods_id2defaultid;
 	private Vector ordervector, cusomervector;
 	private int gstincflag;
-	private double discount;
+	private double discount_double;
+	private String discount_type;
+	private String discount_input, discount_err;
 	private double total_topay, total_subtotal, total_tax, total_total;
 	private JLabel lbl_Money_Topay, lbl_Money_Subtotal, lbl_Money_Tax,
 			lbl_Money_Total;
+	private String notes="";
 
 	public MainForm() {
 		goods_id2id = new HashMap();
@@ -984,7 +989,10 @@ public class MainForm extends JFrame implements ActionListener {
 	public void initorder() {
 		this.ordervector = new Vector();
 		this.gstincflag = 1;
-		this.discount = 1;
+		this.discount_double = 1;
+		this.discount_type = "multiply";
+		this.discount_input = "0%";
+		this.discount_err = "";
 
 	}
 
@@ -1024,7 +1032,11 @@ public class MainForm extends JFrame implements ActionListener {
 		}
 		subtold = Double.parseDouble(String.format("%.2f", subtold));
 		taxtold = Double.parseDouble(String.format("%.2f", taxtold));
-		alltold = (subtold + taxtold) * this.discount;
+		if (this.discount_type.equals("multiply")) {
+			alltold = (subtold + taxtold) * this.discount_double;
+		} else {
+			alltold = (subtold + taxtold) - this.discount_double;
+		}
 		alltold = Double.parseDouble(String.format("%.2f", alltold));
 		topay = alltold;
 		System.out.println("subtotal : " + subtold + "taxtotal : " + taxtold
@@ -1092,53 +1104,131 @@ public class MainForm extends JFrame implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btn_Add) {
-			addsearchtexttolist();
-			// System.exit(0);
+			System.out.println("in btn_Add");
+			this.click_add();
 		} else if (e.getSource() == btn_Logout) {
-			LoginForm mLoginForm = new LoginForm();
-			mLoginForm.setTitle("Login");
-			mLoginForm.setVisible(true);
-			this.dispose();
+			System.out.println("in btn_Logout");
+			this.click_logout();
 		} else if (e.getSource() == btn_Quit) {
-			System.exit(0);
+			System.out.println("in btn_Quit");
+			this.click_quit();
 		} else if (e.getSource() == btn_Void) {
-
-			System.out.print("aaaaaa");
-			TestConn mTestConn = new TestConn();
-			// mTestConn.test();
-			// System.exit(0);
-		} else if (e.getSource() == mJComboBox) {
-			System.out.print("in mJcomboBox");
-
-		} else if (e.getSource() == btn_Pay) {
-			System.out.println("btn_Pay click");
-			// changeGoodsSearchList("B");
+			System.out.println("in btn_Void");
+			this.click_void();
+		}else if (e.getSource() == btn_Park) {
+			System.out.println("in btn_Park");
+			this.click_park();
+		}else if (e.getSource() == btn_Notes) {
+			System.out.println("in btn_Notes");
+			this.click_notes();
 		} else if (e.getSource() == btn_Discount) {
-			System.out.println("in mJcomboBox");
-			String s = JOptionPane.showInputDialog(null,
-					"Discount [ percentage or $ amount ]\nE.g. 20% or 2.5 ", 1);
-			if(s.endsWith("%")){
-				Double k = new Double(s.substring(0,s.indexOf("%")))/100;
-			}
-			Double ss = Double.valueOf(s);
-			NumberFormat nt = NumberFormat.getPercentInstance();
-			nt.setMinimumFractionDigits(2);
-			String sss = nt.format(ss);
-			System.out.print(sss);
-			// changeGoodsSearchList("a");
+			System.out.println("in btn_Discount");
+			this.click_discount();
+		} else if (e.getSource() == btn_Pay) {
+			System.out.println("in btn_Pay");
+			this.click_pay();
 		} else if (e.getSource() == btn_X) {
 			System.out.print("in btn_X");
-			if (this.gstincflag == 0) {
-				this.gstincflag = 1;
-			} else {
-				this.gstincflag = 0;
-			}
-			this.updateorder();
-			// changeGoodsSearchList("87");
-		}
+			this.click_x();
+		}else if (e.getSource() == mJComboBox) {
+			System.out.print("in mJcomboBox");
+
+		} 
 
 	}
+	
 
+	public void click_void(){
+		
+		
+	}
+	public void click_park(){
+		
+		
+	}
+
+	public void click_notes(){
+		 JTextArea text = new JTextArea(this.notes, 4, 30);
+		    Object[] message = { "Please input notes", new JScrollPane(text)};
+		    JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
+		    JDialog dialog = pane.createDialog(null, "Input");
+		    dialog.show();
+		    text.requestDefaultFocus();
+		    System.out.println(text.getText());
+		    this.notes=text.getText();
+	}
+
+	public void click_discount() {
+		String s = JOptionPane.showInputDialog(null,
+				"Discount [ percentage or $ amount ]\nE.g. 20% or 2.5 \n"
+						+ this.discount_err, this.discount_input);
+		try {
+			if (s.endsWith("%")) {// discount is percent
+				System.out.println("discount is percent multiply");
+				this.discount_type = "multiply";
+				try {
+					this.discount_double = 1 - new Double(Double.parseDouble(s
+							.substring(0, s.indexOf("%")))) / 100;
+					System.out.println("discount double is : "
+							+ this.discount_double);
+				} catch (Exception e) {
+					this.discount_err = "Input error";
+					this.click_discount();
+					return;
+				}
+				this.discount_input = s;
+			} else {
+				try {// discount is Double
+					System.out.println("discount is number minus");
+					this.discount_type = "minus";
+					this.discount_double = Double.parseDouble(s);
+					System.out.println("discount double is : "
+							+ this.discount_double);
+
+					this.discount_input = s;
+				} catch (Exception e) {
+					this.discount_err = "Input error";
+					this.click_discount();
+					return;
+				}
+			}
+		} catch (Exception e) {
+			this.discount_err = "Input error";
+			this.click_discount();
+			return;
+		}
+
+		this.updateorder();
+	}
+
+	public void click_pay(){
+		
+		
+	}
+	public void click_logout(){
+		LoginForm mLoginForm = new LoginForm();
+		mLoginForm.setTitle("Login");
+		mLoginForm.setVisible(true);
+		this.dispose();
+	}
+	public void click_add(){
+
+		addsearchtexttolist();
+		
+	}
+	public void click_quit(){
+		System.exit(0);
+		
+	}
+	public void click_x(){
+		if (this.gstincflag == 0) {
+			this.gstincflag = 1;
+		} else {
+			this.gstincflag = 0;
+		}
+		this.updateorder();
+		
+	}
 	public static void main(String[] args) {
 		MainForm app = new MainForm();
 		app.setTitle("Test");
