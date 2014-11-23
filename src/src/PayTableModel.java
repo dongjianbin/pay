@@ -42,6 +42,9 @@ class PayTableModel extends AbstractTableModel {
     public void removeRow(int row) {
         content.remove(row);
     }
+    public void removeAllRow() {
+        content.removeAllElements();
+    }
  
     public void removeRows(int row, int count) {
         for (int i = 0; i < count; i++) {

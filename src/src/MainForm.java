@@ -79,6 +79,8 @@ import javax.swing.JScrollPane;
 import java.awt.Point;
 import java.awt.Component;
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -136,17 +138,25 @@ public class MainForm extends JFrame implements ActionListener {
 	private double total_topay, total_subtotal, total_tax, total_total;
 	private JLabel lbl_Money_Topay, lbl_Money_Subtotal, lbl_Money_Tax,
 			lbl_Money_Total;
-	private String notes="";
+	private String notes;
 
 	public MainForm() {
 		goods_id2id = new HashMap();
 		id2goods_id = new HashMap();
 		defaultid2goods_id = new HashMap();
 		goods_id2defaultid = new HashMap();
-		this.initorder();
-		this.initcustomer();
 		this.initForm();
 		this.searchTextFieldsetfocus();
+		this.initdata();
+
+	}
+
+	public void initdata() {
+
+		this.initorder();
+		this.initcustomer();
+		this.initnotes();
+		this.updatetable("deleteall", 1);
 
 	}
 
@@ -592,11 +602,11 @@ public class MainForm extends JFrame implements ActionListener {
 		String sql = "";
 		if (gtype.endsWith("allgoodslist")) {
 			System.out.println("allgoodslist");
-			sql = "SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods";
+			sql = "SELECT goods_inc_id as id, goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods";
 
 		} else if (gtype.endsWith("defaultgoodslist")) {
 			System.out.println("defaultgoodslist");
-			sql = "SELECT id,goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods_default";
+			sql = "SELECT goods_default_inc_id as id, goods_id,goods_name,goods_price,tax_price,handle,sku,all_price FROM goods_default";
 		}
 
 		Connection conn = null;
@@ -961,7 +971,11 @@ public class MainForm extends JFrame implements ActionListener {
 		if (dtype.equals("delete")) {
 
 			mMyTableModel.removeRow(id);
-		} else {
+		} else if (dtype.equals("deleteall")) {
+			mMyTableModel.removeAllRow();
+		}
+
+		else {
 			Vector fVector = new Vector();
 			if (dtype.equals("insertdefaultgoodslist")) {
 				fVector = (Vector) defaultgoodslist.get(id);
@@ -1002,6 +1016,11 @@ public class MainForm extends JFrame implements ActionListener {
 	 * **/
 	public void initcustomer() {
 		this.cusomervector = new Vector();
+	}
+
+	public void initnotes() {
+		this.notes = "";
+
 	}
 
 	/**
@@ -1115,10 +1134,10 @@ public class MainForm extends JFrame implements ActionListener {
 		} else if (e.getSource() == btn_Void) {
 			System.out.println("in btn_Void");
 			this.click_void();
-		}else if (e.getSource() == btn_Park) {
+		} else if (e.getSource() == btn_Park) {
 			System.out.println("in btn_Park");
 			this.click_park();
-		}else if (e.getSource() == btn_Notes) {
+		} else if (e.getSource() == btn_Notes) {
 			System.out.println("in btn_Notes");
 			this.click_notes();
 		} else if (e.getSource() == btn_Discount) {
@@ -1130,38 +1149,182 @@ public class MainForm extends JFrame implements ActionListener {
 		} else if (e.getSource() == btn_X) {
 			System.out.print("in btn_X");
 			this.click_x();
-		}else if (e.getSource() == mJComboBox) {
+		} else if (e.getSource() == mJComboBox) {
 			System.out.print("in mJcomboBox");
 
-		} 
+		}
 
 	}
-	
 
-	public void click_void(){
-		
-		
-	}
-	public void click_park(){
-		
-		
+	public void click_void() {
+		this.initdata();
+
 	}
 
-	public void click_notes(){
-		 JTextArea text = new JTextArea(this.notes, 4, 30);
-		    Object[] message = { "Please input notes", new JScrollPane(text)};
-		    JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
-		    JDialog dialog = pane.createDialog(null, "Input");
-		    dialog.show();
-		    text.requestDefaultFocus();
-		    System.out.println(text.getText());
-		    this.notes=text.getText();
+	public void click_park() {
+		if (mMyTableModel.getRowCount() <= 0) {
+			System.out.println("no data to park");
+			return;
+		}
+		String ordersql=this.praseorderssql("park");
+		
+
+	}
+
+	public String praseorderssql(String s) {
+		String t = s;
+		String morder_id = null;
+		String mcustomer_id = "";
+		String mcustomer_name = "";
+		String mtopay = String.valueOf(this.total_topay);
+		String msubtotal = String.valueOf(this.total_subtotal);
+		String mtax = String.valueOf(this.total_tax);
+		String mtotal = String.valueOf(this.total_total);
+		String mnotes = this.notes;
+		String mdiscount = this.discount_input;
+		String morder_count = String.valueOf(this.mMyTableModel.getRowCount());
+		String moperator = "";
+		String mshopid = "";
+		String mshopname = "";
+		String mip = "";
+		try {
+			mip = InetAddress.getLocalHost().getHostAddress().toString();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String muuid = "";
+		String mstatus = "";
+		String mcreatetime = "datetime()";
+		String mmodifytime = "datetime()";
+
+		if (t.equals("park")) {
+			mstatus = "0";
+
+		} else if (t.equals("pay")) {
+			mstatus = "1";
+		}
+		if (this.cusomervector.size() > 0) {
+			mcustomer_id = (String) this.cusomervector.get(0);
+			mcustomer_name = (String) this.cusomervector.get(1);
+		}
+
+		String sql = "INSERT INTO orders (orders_id,customer_id,customer_name,topay,subtotal,tax,total,notes,discount,order_count,operator,shopid,shopname,ip,uuid,status,createtime,modifytime) values("
+				+ morder_id
+				+ ",'"
+				+ mcustomer_id
+				+ "'"
+				+ ",'"
+				+ mcustomer_name
+				+ "'"
+				+ ",'"
+				+ mtopay
+				+ "'"
+				+ ",'"
+				+ msubtotal
+				+ "'"
+				+ ",'"
+				+ mtax
+				+ "'"
+				+ ",'"
+				+ mtotal
+				+ "'"
+				+ ",'"
+				+ mnotes
+				+ "'"
+				+ ",'"
+				+ mdiscount
+				+ "'"
+				+ ",'"
+				+ morder_count
+				+ "'"
+				+ ",'"
+				+ moperator
+				+ "'"
+				+ ",'"
+				+ mshopid
+				+ "'"
+				+ ",'"
+				+ mshopname
+				+ "'"
+				+ ",'"
+				+ mip
+				+ "'"
+				+ ",'"
+				+ muuid
+				+ "'"
+				+ ",'"
+				+ mstatus
+				+ "'"
+				+ ",'"
+				+ mcreatetime
+				+ "'"
+				+ ",'"
+				+ mmodifytime
+				+ "'"
+				+ ")";
+			return sql;
+	}
+
+	public int execsqlupdate(String s) {
+		int id = 0;
+		System.out.println("public boolean execsql(String s)");
+		String sql = s;
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rset = null;
+		Config mConfig = new Config();
+		String dbname = mConfig.getDBfullPath();
+		System.out.println("dbname is : " + dbname);
+		try {
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:/" + dbname);
+			conn.setAutoCommit(false);
+			stmt = conn.createStatement();
+			int count = stmt.executeUpdate(sql);
+			conn.commit();
+			if (count > 0) {// 记录保存成功
+				rset = stmt.getGeneratedKeys();
+				if (rset.next())
+					id = rset.getInt(1);
+				// System.out.println("execsql succes count is : "+count);
+				// sql="select last_insert_rowid() from orders";
+				// rset=stmt.executeQuery(sql);
+				// if(rset.next()) id=rset.getInt(1);
+			}
+			rset.close();
+			stmt.close();
+			conn.close();
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("can't find class drive " + cnfe.getMessage());
+			System.exit(-1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return id;
+	}
+
+	public void click_notes() {
+		JTextArea text = new JTextArea(this.notes, 4, 30);
+		Object[] message = { "Please input notes", new JScrollPane(text) };
+		JOptionPane pane = new JOptionPane(message,
+				JOptionPane.INFORMATION_MESSAGE);
+		JDialog dialog = pane.createDialog(null, "Input");
+		dialog.show();
+		text.requestDefaultFocus();
+		System.out.println(text.getText());
+		this.notes = text.getText();
 	}
 
 	public void click_discount() {
 		String s = JOptionPane.showInputDialog(null,
 				"Discount [ percentage or $ amount ]\nE.g. 20% or 2.5 \n"
 						+ this.discount_err, this.discount_input);
+		if (s == null) {
+			System.out.println("no input");
+			return;
+		}
 		try {
 			if (s.endsWith("%")) {// discount is percent
 				System.out.println("discount is percent multiply");
@@ -1201,34 +1364,38 @@ public class MainForm extends JFrame implements ActionListener {
 		this.updateorder();
 	}
 
-	public void click_pay(){
-		
-		
+	public void click_pay() {
+
 	}
-	public void click_logout(){
+
+	public void click_logout() {
 		LoginForm mLoginForm = new LoginForm();
 		mLoginForm.setTitle("Login");
 		mLoginForm.setVisible(true);
 		this.dispose();
 	}
-	public void click_add(){
+
+	public void click_add() {
 
 		addsearchtexttolist();
-		
+
 	}
-	public void click_quit(){
+
+	public void click_quit() {
 		System.exit(0);
-		
+
 	}
-	public void click_x(){
+
+	public void click_x() {
 		if (this.gstincflag == 0) {
 			this.gstincflag = 1;
 		} else {
 			this.gstincflag = 0;
 		}
 		this.updateorder();
-		
+
 	}
+
 	public static void main(String[] args) {
 		MainForm app = new MainForm();
 		app.setTitle("Test");
