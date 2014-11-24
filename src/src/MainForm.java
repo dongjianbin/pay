@@ -1157,18 +1157,133 @@ public class MainForm extends JFrame implements ActionListener {
 	}
 
 	public void click_void() {
-		this.initdata();
+		int it = JOptionPane.showConfirmDialog(null, "Do you want to void?",
+				"Void", JOptionPane.YES_NO_OPTION);
+		if (it == 0) {
+			this.initdata();
+		}
 
 	}
 
 	public void click_park() {
 		if (mMyTableModel.getRowCount() <= 0) {
 			System.out.println("no data to park");
+			JOptionPane.showMessageDialog(null, "No goods to park!", "Park",
+					JOptionPane.PLAIN_MESSAGE);
 			return;
 		}
-		String ordersql=this.praseorderssql("park");
-		
+		int it = JOptionPane.showConfirmDialog(null, "Do you want to park?",
+				"Park", JOptionPane.YES_NO_OPTION);
+		if (it == 0) {
+			if (!this.save("park")) {
+				JOptionPane.showMessageDialog(null, "Failed to park!", "Park",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			this.initdata();
+		}
 
+	}
+
+	public boolean save(String s) {
+		String ordersql = this.praseorderssql("pay");
+		if (s.equals("park")) {
+			ordersql = this.praseorderssql("park");
+		}
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rset = null;
+		Config mConfig = new Config();
+		String dbname = mConfig.getDBfullPath();
+		System.out.println("dbname is : " + dbname);
+		try {
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:/" + dbname);
+			conn.setAutoCommit(false);
+			stmt = conn.createStatement();
+			System.out.println("sql: " + ordersql);
+			int count = stmt.executeUpdate(ordersql);
+			conn.commit();
+
+			int id = 0;
+			if (count > 0) {// 记录保存成功
+				String sql = "select last_insert_rowid()";
+				rset = stmt.executeQuery(sql);
+				if (rset.next())
+					id = rset.getInt(1);
+				rset.close();
+				Vector osql = this.praseorders_goods_listssql(this.ordervector,
+						id);
+				for (int i = 0; i < osql.size(); i++) {
+					System.out.println("sql : " + osql.get(i).toString());
+					System.out.println("stmt "
+							+ stmt.executeUpdate(osql.get(i).toString()));
+				}
+				conn.commit();
+			}
+			stmt.close();
+			conn.close();
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("can't find class drive " + cnfe.getMessage());
+			System.exit(-1);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rset != null)
+					rset.close();
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+
+			}
+		}
+		return true;
+	}
+
+	public Vector praseorders_goods_listssql(Vector v, int s) {
+		Vector vv = new Vector();
+		for (int i = 0; i < v.size(); i++) {
+			Vector t = (Vector) v.get(i);
+			String morders_goods_lists_id = null;
+			int morders_id = s;
+			int mgoods_id = (int) t.get(1);
+			String mgoods_name = (String) t.get(2);
+			String mall_price = (String) t.get(7);
+			String mgoods_price = (String) t.get(3);
+			String mtax_price = (String) t.get(4);
+			String mhandle = (String) t.get(5);
+			String msku = (String) t.get(6);
+			String sql = "INSERT INTO orders_goods_lists (orders_goods_lists_id,orders_id,goods_id,goods_name,all_price,goods_price,tax_price,handle,sku) values ("
+					+ morders_goods_lists_id
+					+ ",'"
+					+ morders_id
+					+ "'"
+					+ ",'"
+					+ mgoods_id
+					+ "'"
+					+ ",'"
+					+ mgoods_name
+					+ "'"
+					+ ",'"
+					+ mall_price
+					+ "'"
+					+ ",'"
+					+ mgoods_price
+					+ "'"
+					+ ",'"
+					+ mtax_price
+					+ "'"
+					+ ",'"
+					+ mhandle
+					+ "'"
+					+ ",'"
+					+ msku
+					+ "'" + ")";
+			vv.add(sql);
+		}
+
+		return vv;
 	}
 
 	public String praseorderssql(String s) {
@@ -1255,15 +1370,8 @@ public class MainForm extends JFrame implements ActionListener {
 				+ "'"
 				+ ",'"
 				+ mstatus
-				+ "'"
-				+ ",'"
-				+ mcreatetime
-				+ "'"
-				+ ",'"
-				+ mmodifytime
-				+ "'"
-				+ ")";
-			return sql;
+				+ "'" + "," + mcreatetime + "," + mmodifytime + ")";
+		return sql;
 	}
 
 	public int execsqlupdate(String s) {
@@ -1365,7 +1473,22 @@ public class MainForm extends JFrame implements ActionListener {
 	}
 
 	public void click_pay() {
-
+		if (mMyTableModel.getRowCount() <= 0) {
+			System.out.println("no data to park");
+			JOptionPane.showMessageDialog(null, "No goods to pay!", "Pay",
+					JOptionPane.PLAIN_MESSAGE);
+			return;
+		}
+		int it = JOptionPane.showConfirmDialog(null, "Do you want to pay?",
+				"Pay", JOptionPane.YES_NO_OPTION);
+		if (it == 0) {
+			if (!this.save("pay")) {
+				JOptionPane.showMessageDialog(null, "Failed to pay!", "Pay",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			this.initdata();
+		}
 	}
 
 	public void click_logout() {
