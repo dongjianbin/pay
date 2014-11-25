@@ -115,7 +115,7 @@ public class MainForm extends JFrame implements ActionListener {
 	private JTextField text_GoodsSearch, searchTextField;
 	private JTextField text_Custom;
 	private JButton btn_X, btn_Void, btn_Park, btn_Notes, btn_Discount,
-			btn_Pay, btn_Logout, btn_Add, btn_Quit;
+			btn_Pay, btn_Logout, btn_Add, btn_Quit,btn_Retrive_Sale,btn_Close_Register;
 	private JTable mtable;
 	private PayTableModel mMyTableModel, tMyTableModel;
 	private JScrollPane scroll_panel_Main_Left_Btm_Top_Top_Btm,
@@ -185,18 +185,20 @@ public class MainForm extends JFrame implements ActionListener {
 		panel.add(panel_2);
 		panel_2.setLayout(new GridLayout(0, 1, 0, 0));
 
-		JButton btnNewButton = new JButton("RETRIEVE SALE");
-		btnNewButton.setPreferredSize(new Dimension(10, 10));
-		panel_2.add(btnNewButton);
-
+		btn_Retrive_Sale = new JButton("RETRIEVE SALE");
+		btn_Retrive_Sale.setPreferredSize(new Dimension(10, 10));
+		panel_2.add(btn_Retrive_Sale);
+		btn_Retrive_Sale.addActionListener(this);
+		
 		JPanel panel_3 = new JPanel();
 		panel.add(panel_3);
 		panel_3.setLayout(new GridLayout(0, 1, 0, 0));
 
-		JButton btnNewButton_1 = new JButton("CLOSE REGISTER");
-		btnNewButton_1.setSize(new Dimension(20, 10));
-		btnNewButton_1.setPreferredSize(new Dimension(10, 10));
-		panel_3.add(btnNewButton_1);
+		btn_Close_Register = new JButton("CLOSE REGISTER");
+		btn_Close_Register.setSize(new Dimension(20, 10));
+		btn_Close_Register.setPreferredSize(new Dimension(10, 10));
+		panel_3.add(btn_Close_Register);
+		btn_Close_Register.addActionListener(this);
 
 		JPanel panel_4 = new JPanel();
 		panel.add(panel_4);
@@ -1125,6 +1127,12 @@ public class MainForm extends JFrame implements ActionListener {
 		if (e.getSource() == btn_Add) {
 			System.out.println("in btn_Add");
 			this.click_add();
+		} else if (e.getSource() == btn_Retrive_Sale) {
+			System.out.println("in btn_retrive_sale");
+			this.click_retrive_sale();
+		} else if (e.getSource() == btn_Close_Register) {
+			System.out.println("in btn_close_register");
+			this.click_close_register();
 		} else if (e.getSource() == btn_Logout) {
 			System.out.println("in btn_Logout");
 			this.click_logout();
@@ -1328,49 +1336,37 @@ public class MainForm extends JFrame implements ActionListener {
 				+ morder_id
 				+ ",'"
 				+ mcustomer_id
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mcustomer_name
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mtopay
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ msubtotal
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mtax
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mtotal
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mnotes
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mdiscount
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ morder_count
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ moperator
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mshopid
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mshopname
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mip
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ muuid
-				+ "'"
-				+ ",'"
+				+ "','"
 				+ mstatus
-				+ "'" + "," + mcreatetime + "," + mmodifytime + ")";
+				+ "'," 
+				+ mcreatetime 
+				+ "," + mmodifytime + ")";
 		return sql;
 	}
 
@@ -1491,11 +1487,42 @@ public class MainForm extends JFrame implements ActionListener {
 		}
 	}
 
+	
+	public void click_current_sale(){
+		
+		
+	}
+	
+	public void click_retrive_sale(){
+		System.out.println("hsdsfsa");
+		JTextArea text = new JTextArea(this.notes, 4, 30);
+		Object[] message = { "Please input notes", new JScrollPane(text) };
+		JOptionPane pane = new JOptionPane(message,
+				JOptionPane.INFORMATION_MESSAGE);
+		JDialog dialog = pane.createDialog(null, "Input");
+		dialog.show();
+		text.requestDefaultFocus();
+		System.out.println(text.getText());
+		this.notes = text.getText();
+		
+	}
+	
+	public void click_close_register(){
+		
+		
+	}
+
+
 	public void click_logout() {
 		LoginForm mLoginForm = new LoginForm();
 		mLoginForm.setTitle("Login");
 		mLoginForm.setVisible(true);
 		this.dispose();
+	}
+	
+	public void click_quit() {
+		System.exit(0);
+
 	}
 
 	public void click_add() {
@@ -1503,12 +1530,6 @@ public class MainForm extends JFrame implements ActionListener {
 		addsearchtexttolist();
 
 	}
-
-	public void click_quit() {
-		System.exit(0);
-
-	}
-
 	public void click_x() {
 		if (this.gstincflag == 0) {
 			this.gstincflag = 1;
