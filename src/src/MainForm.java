@@ -1532,6 +1532,16 @@ public class MainForm extends JFrame implements ActionListener {
 		pJDialog.getParent().getY()+(pJDialog.getParent().getHeight() - pJDialog.getHeight()) / 2);
 
 		pJDialog.setVisible(true);
+		Vector ve= new Vector();
+		ve.add("a");
+		ve.add("a");
+		ve.add("a");
+		ve.add("a");
+		ve.add("a");
+		ve.add("a");
+		
+		pMyTableModel.addRow(ve);
+		ptable.updateUI();
 //		pJDialog.show();
 
 		
