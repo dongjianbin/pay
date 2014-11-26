@@ -117,12 +117,12 @@ public class MainForm extends JFrame implements ActionListener {
 	private JButton btn_X, btn_Void, btn_Park, btn_Notes, btn_Discount,
 			btn_Pay, btn_Logout, btn_Add, btn_Quit,btn_Retrive_Sale,btn_Close_Register;
 	private JTable mtable;
-	private PayTableModel mMyTableModel, tMyTableModel;
+	private PayTableModel mMyTableModel, tMyTableModel,retrivetablemodel;
 	private JScrollPane scroll_panel_Main_Left_Btm_Top_Top_Btm,
 			scroll_Main_Right_Btm;
 	private Vector content, defaultcontent, defaultgoodslist, allgoodslist,
 			searchgoodslist;
-	private JTable defaulttable;
+	private JTable defaulttable,retrivetable;
 	private JPanel panel_Main_Left_Top_Left;
 	private JComboBox mJComboBox;
 	private DefaultComboBoxModel mDefaultComboBoxModel;
@@ -1494,16 +1494,57 @@ public class MainForm extends JFrame implements ActionListener {
 	}
 	
 	public void click_retrive_sale(){
-		System.out.println("hsdsfsa");
-		JTextArea text = new JTextArea(this.notes, 4, 30);
-		Object[] message = { "Please input notes", new JScrollPane(text) };
-		JOptionPane pane = new JOptionPane(message,
-				JOptionPane.INFORMATION_MESSAGE);
-		JDialog dialog = pane.createDialog(null, "Input");
-		dialog.show();
-		text.requestDefaultFocus();
-		System.out.println(text.getText());
-		this.notes = text.getText();
+		System.out.println("click_retrive_sale");
+
+		String headName[] = { "Count", "Name", "Price", "Price", "Act","aaa" };
+		Vector pcontent = new Vector();
+		
+		PayTableModel pMyTableModel = new PayTableModel(headName,pcontent);
+		JTable ptable = new JTable(pMyTableModel);
+		ptable.setPreferredScrollableViewportSize(new Dimension(250, 10));
+		ptable.setDefaultRenderer(JButton.class, new ComboBoxCellRenderer());
+		ptable.getTableHeader().setPreferredSize(new Dimension(0, 20));
+		ptable.setRowHeight(30);
+		ptable.getSelectionModel().setSelectionMode(
+				ListSelectionModel.SINGLE_SELECTION);
+		ptable.getTableHeader().setReorderingAllowed(false);
+		ptable.getTableHeader().setResizingAllowed(false);
+		ptable.getTableHeader().getColumnModel().getColumn(0).setMaxWidth(20);
+		ptable.getTableHeader().getColumnModel().getColumn(0)
+				.setPreferredWidth(20);
+		ptable.getTableHeader().getColumnModel().getColumn(0).setMinWidth(20);
+		ptable.getColumnModel().getColumn(0).setMaxWidth(0);
+		ptable.getColumnModel().getColumn(0).setPreferredWidth(0);
+		ptable.getColumnModel().getColumn(0).setMinWidth(0);
+		ptable.getColumnModel().getColumn(1).setPreferredWidth(45);
+		ptable.getColumnModel().getColumn(2).setPreferredWidth(200);
+		ptable.getColumnModel().getColumn(3).setPreferredWidth(40);
+		ptable.getColumnModel().getColumn(4).setPreferredWidth(40);
+		ptable.getColumnModel().getColumn(5).setPreferredWidth(10);
+		JScrollPane pJScrollPane= new JScrollPane();
+		pJScrollPane.setViewportView(ptable);
+		JDialog pJDialog = new JDialog(this, true);
+		pJDialog.getContentPane().setLayout(new BorderLayout());
+		pJDialog.getContentPane().add(pJScrollPane);
+		pJDialog.pack();
+		pJDialog.setSize(600, 400);
+		pJDialog.setLocation(pJDialog.getParent().getX()+(pJDialog.getParent().getWidth() - pJDialog.getWidth()) / 2,
+		pJDialog.getParent().getY()+(pJDialog.getParent().getHeight() - pJDialog.getHeight()) / 2);
+
+		pJDialog.setVisible(true);
+//		pJDialog.show();
+
+		
+		
+		
+//		JTextArea text = new JTextArea(this.notes, 4, 30);
+//		Object[] message = { "Please input notes", new JScrollPane(text) };
+//		JOptionPane pane = new JOptionPane(message,
+//				JOptionPane.INFORMATION_MESSAGE);
+//		JDialog dialog = pane.createDialog(null, "Retrive Sale");
+//		dialog.show();
+//		System.out.println(text.getText());
+//		this.notes = text.getText();
 		
 	}
 	
