@@ -1500,6 +1500,7 @@ public class MainForm extends JFrame implements ActionListener {
 		Vector pcontent = new Vector();
 		
 		PayTableModel pMyTableModel = new PayTableModel(headName,pcontent);
+//		JTable ptable = new JTable(pMyTableModel);
 		JTable ptable = new JTable(pMyTableModel);
 		ptable.setPreferredScrollableViewportSize(new Dimension(250, 10));
 		ptable.setDefaultRenderer(JButton.class, new ComboBoxCellRenderer());
@@ -1521,17 +1522,21 @@ public class MainForm extends JFrame implements ActionListener {
 		ptable.getColumnModel().getColumn(3).setPreferredWidth(40);
 		ptable.getColumnModel().getColumn(4).setPreferredWidth(40);
 		ptable.getColumnModel().getColumn(5).setPreferredWidth(10);
+
 		JScrollPane pJScrollPane= new JScrollPane();
 		pJScrollPane.setViewportView(ptable);
 		JDialog pJDialog = new JDialog(this, true);
 		pJDialog.getContentPane().setLayout(new BorderLayout());
 		pJDialog.getContentPane().add(pJScrollPane);
+		JButton pButton = new JButton("okok");
+		pJDialog.getContentPane().add(pButton);
+		
 		pJDialog.pack();
 		pJDialog.setSize(600, 400);
 		pJDialog.setLocation(pJDialog.getParent().getX()+(pJDialog.getParent().getWidth() - pJDialog.getWidth()) / 2,
 		pJDialog.getParent().getY()+(pJDialog.getParent().getHeight() - pJDialog.getHeight()) / 2);
 
-		pJDialog.setVisible(true);
+
 		Vector ve= new Vector();
 		ve.add("a");
 		ve.add("a");
@@ -1539,10 +1544,22 @@ public class MainForm extends JFrame implements ActionListener {
 		ve.add("a");
 		ve.add("a");
 		ve.add("a");
-		
-		pMyTableModel.addRow(ve);
+		pcontent.addElement(ve);
+		pcontent.addElement(ve);
+		pcontent.addElement(ve);
+
+		pJDialog.show();
+
+		pcontent.addElement(ve);
+		pcontent.addElement(ve);
+		pcontent.addElement(ve);
+//		pJDialog.setVisible(true);
+//		pcontent.add(ve);
 		ptable.updateUI();
-//		pJDialog.show();
+
+		pJDialog.hide();
+
+		pJDialog.show();
 
 		
 		
