@@ -1528,14 +1528,37 @@ public class MainForm extends JFrame implements ActionListener {
 		JDialog pJDialog = new JDialog(this, true);
 		pJDialog.getContentPane().setLayout(new BorderLayout());
 		pJDialog.getContentPane().add(pJScrollPane);
-		JButton pButton = new JButton("okok");
-		pJDialog.getContentPane().add(pButton);
+		JPanel pJPanel = new JPanel();
+		pJPanel.setLayout(new GridLayout(1,1,0,0));
+		//if need filter button and search box , add here.
+//		JButton pButton = new JButton("okok");
+//		pButton.addActionListener(new ActionListener() {
+//		      public void actionPerformed(ActionEvent e) {
+//		  		Vector ve= new Vector();
+//		  		ve.add("a");
+//		  		ve.add("a");
+//		  		ve.add("a");
+//		  		ve.add("a");
+//		  		ve.add("a");
+//		  		ve.add("a");
+//
+//		  		pcontent.addElement(ve);
+//		  		pcontent.addElement(ve);
+//		  		pcontent.addElement(ve);
+//		  		ptable.updateUI();
+//			      }
+//			    });
+//		pJPanel.add(pButton);
+		pJPanel.add(pJScrollPane);
+		
+		pJDialog.getContentPane().add(pJPanel);
 		
 		pJDialog.pack();
 		pJDialog.setSize(600, 400);
 		pJDialog.setLocation(pJDialog.getParent().getX()+(pJDialog.getParent().getWidth() - pJDialog.getWidth()) / 2,
 		pJDialog.getParent().getY()+(pJDialog.getParent().getHeight() - pJDialog.getHeight()) / 2);
 
+		
 
 		Vector ve= new Vector();
 		ve.add("a");
@@ -1544,22 +1567,16 @@ public class MainForm extends JFrame implements ActionListener {
 		ve.add("a");
 		ve.add("a");
 		ve.add("a");
-		pcontent.addElement(ve);
-		pcontent.addElement(ve);
-		pcontent.addElement(ve);
 
+		pcontent.addElement(ve);
+		pcontent.addElement(ve);
+		pcontent.addElement(ve);
 		pJDialog.show();
 
-		pcontent.addElement(ve);
-		pcontent.addElement(ve);
-		pcontent.addElement(ve);
 //		pJDialog.setVisible(true);
 //		pcontent.add(ve);
 		ptable.updateUI();
 
-		pJDialog.hide();
-
-		pJDialog.show();
 
 		
 		
