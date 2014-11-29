@@ -139,6 +139,9 @@ public class MainForm extends JFrame implements ActionListener {
 	private JLabel lbl_Money_Topay, lbl_Money_Subtotal, lbl_Money_Tax,
 			lbl_Money_Total;
 	private String notes;
+	private JButton btn_retrivesale;
+	private JTable ptable;
+	private Vector pcontent;
 
 	public MainForm() {
 		goods_id2id = new HashMap();
@@ -898,6 +901,7 @@ public class MainForm extends JFrame implements ActionListener {
 
 		});
 
+
 		// searchTextField = (JTextField) mJComboBox.getEditor()
 		// .getEditorComponent();
 		// mDocument = searchTextField.getDocument();
@@ -1160,10 +1164,24 @@ public class MainForm extends JFrame implements ActionListener {
 		} else if (e.getSource() == mJComboBox) {
 			System.out.print("in mJcomboBox");
 
+		} else if (e.getSource() == btn_retrivesale) {
+			System.out.println("in btn_retrivesale");
+			this.click_retrivesale();
+
 		}
 
 	}
 
+	public void click_retrivesale(){
+		System.out.println("public void  click_retrivesale");
+  		pcontent.removeAllElements();
+  		Vector pVector=this.getretrivesaledata();
+  		for(int i=0;i<pVector.size();i++){
+  			pcontent.addElement(pVector.get(i));
+  		}
+  		ptable.updateUI();
+		
+	}
 	public void click_void() {
 		int it = JOptionPane.showConfirmDialog(null, "Do you want to void?",
 				"Void", JOptionPane.YES_NO_OPTION);
@@ -1370,6 +1388,47 @@ public class MainForm extends JFrame implements ActionListener {
 		return sql;
 	}
 
+	public Vector execsqlQuery(String s) {
+		Vector pVector = new Vector();
+		System.out.println("public boolean execsqlQuery(String s)");
+		String sql = s;
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rset = null;
+		Config mConfig = new Config();
+		String dbname = mConfig.getDBfullPath();
+		System.out.println("dbname is : " + dbname);
+		try {
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:/" + dbname);
+			conn.setAutoCommit(true);
+			stmt = conn.createStatement();
+
+			System.out.println("SQL: " + sql);
+			rset=stmt.executeQuery(sql);
+			ResultSetMetaData rsmd = rset.getMetaData() ; 
+			int columnCount = rsmd.getColumnCount();
+			System.out.println("column count is : " +columnCount);
+			while (rset.next()) {
+				Vector v = new Vector(columnCount);
+				for(int i=0;i<columnCount;i++){
+					v.add(i,rset.getString(i+1));
+				}
+				pVector.add(v);
+			}
+			rset.close();
+			stmt.close();
+			conn.close();
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("can't find class drive " + cnfe.getMessage());
+			System.exit(-1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return pVector;
+	}
+
 	public int execsqlupdate(String s) {
 		int id = 0;
 		System.out.println("public boolean execsql(String s)");
@@ -1495,13 +1554,12 @@ public class MainForm extends JFrame implements ActionListener {
 	
 	public void click_retrive_sale(){
 		System.out.println("click_retrive_sale");
-
-		String headName[] = { "Count", "Name", "Price", "Price", "Act","aaa" };
-		Vector pcontent = new Vector();
+		String headName[] = { "ID", "customer", "Topay", "Subtotal", "Tax","Total","Notes","Operator" };
+		pcontent = new Vector();
 		
 		PayTableModel pMyTableModel = new PayTableModel(headName,pcontent);
 //		JTable ptable = new JTable(pMyTableModel);
-		JTable ptable = new JTable(pMyTableModel);
+		ptable = new JTable(pMyTableModel);
 		ptable.setPreferredScrollableViewportSize(new Dimension(250, 10));
 		ptable.setDefaultRenderer(JButton.class, new ComboBoxCellRenderer());
 		ptable.getTableHeader().setPreferredSize(new Dimension(0, 20));
@@ -1518,78 +1576,50 @@ public class MainForm extends JFrame implements ActionListener {
 		ptable.getColumnModel().getColumn(0).setPreferredWidth(0);
 		ptable.getColumnModel().getColumn(0).setMinWidth(0);
 		ptable.getColumnModel().getColumn(1).setPreferredWidth(45);
-		ptable.getColumnModel().getColumn(2).setPreferredWidth(200);
+		ptable.getColumnModel().getColumn(2).setPreferredWidth(30);
 		ptable.getColumnModel().getColumn(3).setPreferredWidth(40);
 		ptable.getColumnModel().getColumn(4).setPreferredWidth(40);
-		ptable.getColumnModel().getColumn(5).setPreferredWidth(10);
+		ptable.getColumnModel().getColumn(5).setPreferredWidth(30);
+		ptable.getColumnModel().getColumn(6).setPreferredWidth(30);
+		ptable.getColumnModel().getColumn(7).setPreferredWidth(30);
 
 		JScrollPane pJScrollPane= new JScrollPane();
 		pJScrollPane.setViewportView(ptable);
-		JDialog pJDialog = new JDialog(this, true);
-		pJDialog.getContentPane().setLayout(new BorderLayout());
-		pJDialog.getContentPane().add(pJScrollPane);
 		JPanel pJPanel = new JPanel();
 		pJPanel.setLayout(new GridLayout(1,1,0,0));
-		//if need filter button and search box , add here.
-//		JButton pButton = new JButton("okok");
-//		pButton.addActionListener(new ActionListener() {
-//		      public void actionPerformed(ActionEvent e) {
-//		  		Vector ve= new Vector();
-//		  		ve.add("a");
-//		  		ve.add("a");
-//		  		ve.add("a");
-//		  		ve.add("a");
-//		  		ve.add("a");
-//		  		ve.add("a");
-//
-//		  		pcontent.addElement(ve);
-//		  		pcontent.addElement(ve);
-//		  		pcontent.addElement(ve);
-//		  		ptable.updateUI();
-//			      }
-//			    });
-//		pJPanel.add(pButton);
 		pJPanel.add(pJScrollPane);
+
+		btn_retrivesale = new JButton("Query parked sales");
+		btn_retrivesale.addActionListener(this);
+		JPanel btnJPanel = new JPanel();
+		btnJPanel.setLayout(new GridLayout(1,1,0,0));
+		btnJPanel.add(btn_retrivesale);
 		
-		pJDialog.getContentPane().add(pJPanel);
-		
+		JSplitPane pJSplitPane = new JSplitPane();
+		pJSplitPane.setEnabled(false);
+		pJSplitPane.setResizeWeight(0.05);
+		pJSplitPane.setDividerSize(0);
+		pJSplitPane.setTopComponent(btnJPanel);
+		pJSplitPane.setBottomComponent(pJPanel);
+		pJSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+
+		JDialog pJDialog = new JDialog(this, true);
+		pJDialog.getContentPane().add(pJSplitPane);
 		pJDialog.pack();
 		pJDialog.setSize(600, 400);
 		pJDialog.setLocation(pJDialog.getParent().getX()+(pJDialog.getParent().getWidth() - pJDialog.getWidth()) / 2,
 		pJDialog.getParent().getY()+(pJDialog.getParent().getHeight() - pJDialog.getHeight()) / 2);
+		ptable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("ptable");
+				int row = ptable.getSelectedRow();
+				int column = ptable.getSelectedColumn();
+				System.out.println("row=" + row + ":" + "column=" + column);
+				pJDialog.dispose();
 
-		
-
-		Vector ve= new Vector();
-		ve.add("a");
-		ve.add("a");
-		ve.add("a");
-		ve.add("a");
-		ve.add("a");
-		ve.add("a");
-
-		pcontent.addElement(ve);
-		pcontent.addElement(ve);
-		pcontent.addElement(ve);
+			}
+		});
 		pJDialog.show();
-
-//		pJDialog.setVisible(true);
-//		pcontent.add(ve);
-		ptable.updateUI();
-
-
-		
-		
-		
-//		JTextArea text = new JTextArea(this.notes, 4, 30);
-//		Object[] message = { "Please input notes", new JScrollPane(text) };
-//		JOptionPane pane = new JOptionPane(message,
-//				JOptionPane.INFORMATION_MESSAGE);
-//		JDialog dialog = pane.createDialog(null, "Retrive Sale");
-//		dialog.show();
-//		System.out.println(text.getText());
-//		this.notes = text.getText();
-		
 	}
 	
 	public void click_close_register(){
@@ -1623,6 +1653,16 @@ public class MainForm extends JFrame implements ActionListener {
 		}
 		this.updateorder();
 
+	}
+	
+	public Vector getretrivesaledata(){
+		System.out.println("getretrivesaledata");
+		Vector pVector = new Vector();
+		String sql="select orders_id,customer_name,topay,subtotal,tax,total,notes,operator from orders where status='0'";
+		pVector=this.execsqlQuery(sql);
+		return pVector;
+
+		
 	}
 
 	public static void main(String[] args) {
