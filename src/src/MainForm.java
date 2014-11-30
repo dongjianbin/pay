@@ -15,6 +15,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.NumberFormat;
 
 import javax.swing.ComboBoxModel;
@@ -140,8 +141,10 @@ public class MainForm extends JFrame implements ActionListener {
 			lbl_Money_Total;
 	private String notes;
 	private JButton btn_retrivesale;
-	private JTable ptable;
+	private JTable ptable=new JTable();
 	private Vector pcontent;
+	private JDialog pJDialog;
+	private String pOrder_id;
 
 	public MainForm() {
 		goods_id2id = new HashMap();
@@ -160,6 +163,7 @@ public class MainForm extends JFrame implements ActionListener {
 		this.initcustomer();
 		this.initnotes();
 		this.updatetable("deleteall", 1);
+		this.pOrder_id=null;
 
 	}
 
@@ -902,6 +906,8 @@ public class MainForm extends JFrame implements ActionListener {
 		});
 
 
+
+
 		// searchTextField = (JTextField) mJComboBox.getEditor()
 		// .getEditorComponent();
 		// mDocument = searchTextField.getDocument();
@@ -988,6 +994,9 @@ public class MainForm extends JFrame implements ActionListener {
 
 			} else if (dtype.equals("insertallgoodslist")) {
 				fVector = (Vector) allgoodslist.get(id);
+			} else if (dtype.equals("goodsid")) {//from goods_id
+				int coid=Integer.parseInt(this.goods_id2id.get(id).toString());
+				fVector = (Vector) allgoodslist.get(coid);
 			}
 			Vector ffVector = new Vector();
 			ffVector.add(0, fVector.get(1));
@@ -1186,12 +1195,19 @@ public class MainForm extends JFrame implements ActionListener {
 		int it = JOptionPane.showConfirmDialog(null, "Do you want to void?",
 				"Void", JOptionPane.YES_NO_OPTION);
 		if (it == 0) {
+			if(this.pOrder_id!=null){
+				this.deleteorderbyid(this.pOrder_id);
+			}
 			this.initdata();
 		}
 
 	}
 
 	public void click_park() {
+		if(this.pOrder_id!=null){
+			this.deleteorderbyid(this.pOrder_id);
+			this.pOrder_id=null;
+		}
 		if (mMyTableModel.getRowCount() <= 0) {
 			System.out.println("no data to park");
 			JOptionPane.showMessageDialog(null, "No goods to park!", "Park",
@@ -1323,6 +1339,7 @@ public class MainForm extends JFrame implements ActionListener {
 		String mtotal = String.valueOf(this.total_total);
 		String mnotes = this.notes;
 		String mdiscount = this.discount_input;
+		String mgstincflag=String.valueOf(this.gstincflag);
 		String morder_count = String.valueOf(this.mMyTableModel.getRowCount());
 		String moperator = "";
 		String mshopid = "";
@@ -1350,7 +1367,7 @@ public class MainForm extends JFrame implements ActionListener {
 			mcustomer_name = (String) this.cusomervector.get(1);
 		}
 
-		String sql = "INSERT INTO orders (orders_id,customer_id,customer_name,topay,subtotal,tax,total,notes,discount,order_count,operator,shopid,shopname,ip,uuid,status,createtime,modifytime) values("
+		String sql = "INSERT INTO orders (orders_id,customer_id,customer_name,topay,subtotal,tax,total,notes,discount,gstincflag,order_count,operator,shopid,shopname,ip,uuid,status,createtime,modifytime) values("
 				+ morder_id
 				+ ",'"
 				+ mcustomer_id
@@ -1368,6 +1385,8 @@ public class MainForm extends JFrame implements ActionListener {
 				+ mnotes
 				+ "','"
 				+ mdiscount
+				+ "','"
+				+ this.gstincflag
 				+ "','"
 				+ morder_count
 				+ "','"
@@ -1468,6 +1487,33 @@ public class MainForm extends JFrame implements ActionListener {
 		return id;
 	}
 
+	public void execsqldelete(String s) {
+		int id = 0;
+		System.out.println("public boolean execsqldelete(String s)");
+		String sql = s;
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rset = null;
+		Config mConfig = new Config();
+		String dbname = mConfig.getDBfullPath();
+		System.out.println("dbname is : " + dbname);
+		try {
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:/" + dbname);
+			conn.setAutoCommit(false);
+			stmt = conn.createStatement();
+			int count = stmt.executeUpdate(sql);
+			conn.commit();
+			stmt.close();
+			conn.close();
+		} catch (ClassNotFoundException cnfe) {
+			System.out.println("can't find class drive " + cnfe.getMessage());
+			System.exit(-1);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	public void click_notes() {
 		JTextArea text = new JTextArea(this.notes, 4, 30);
 		Object[] message = { "Please input notes", new JScrollPane(text) };
@@ -1480,14 +1526,8 @@ public class MainForm extends JFrame implements ActionListener {
 		this.notes = text.getText();
 	}
 
-	public void click_discount() {
-		String s = JOptionPane.showInputDialog(null,
-				"Discount [ percentage or $ amount ]\nE.g. 20% or 2.5 \n"
-						+ this.discount_err, this.discount_input);
-		if (s == null) {
-			System.out.println("no input");
-			return;
-		}
+	public void update_discount(String s){
+
 		try {
 			if (s.endsWith("%")) {// discount is percent
 				System.out.println("discount is percent multiply");
@@ -1524,10 +1564,27 @@ public class MainForm extends JFrame implements ActionListener {
 			return;
 		}
 
+		this.discount_err="";
 		this.updateorder();
+		
+	}
+	
+	public void click_discount() {
+		String s = JOptionPane.showInputDialog(null,
+				"Discount [ percentage or $ amount ]\nE.g. 20% or 2.5 \n"
+						+ this.discount_err, this.discount_input);
+		if (s == null) {
+			System.out.println("no input");
+			return;
+		}
+		this.update_discount(s);
 	}
 
 	public void click_pay() {
+		if(this.pOrder_id!=null){
+			this.deleteorderbyid(this.pOrder_id);
+			this.pOrder_id=null;
+		}
 		if (mMyTableModel.getRowCount() <= 0) {
 			System.out.println("no data to park");
 			JOptionPane.showMessageDialog(null, "No goods to pay!", "Pay",
@@ -1582,7 +1639,16 @@ public class MainForm extends JFrame implements ActionListener {
 		ptable.getColumnModel().getColumn(5).setPreferredWidth(30);
 		ptable.getColumnModel().getColumn(6).setPreferredWidth(30);
 		ptable.getColumnModel().getColumn(7).setPreferredWidth(30);
-
+		ptable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("ptable");
+				int row = ptable.getSelectedRow();
+				int column = ptable.getSelectedColumn();
+				System.out.println("row=" + row + ":" + "column=" + column);
+				pJDialog.dispose();
+				loadRetriveROw2Currentsale(row);
+			}
+		});
 		JScrollPane pJScrollPane= new JScrollPane();
 		pJScrollPane.setViewportView(ptable);
 		JPanel pJPanel = new JPanel();
@@ -1603,23 +1669,15 @@ public class MainForm extends JFrame implements ActionListener {
 		pJSplitPane.setBottomComponent(pJPanel);
 		pJSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
-		JDialog pJDialog = new JDialog(this, true);
+		pJDialog = new JDialog(this, true);
 		pJDialog.getContentPane().add(pJSplitPane);
 		pJDialog.pack();
 		pJDialog.setSize(600, 400);
 		pJDialog.setLocation(pJDialog.getParent().getX()+(pJDialog.getParent().getWidth() - pJDialog.getWidth()) / 2,
 		pJDialog.getParent().getY()+(pJDialog.getParent().getHeight() - pJDialog.getHeight()) / 2);
-		ptable.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				System.out.println("ptable");
-				int row = ptable.getSelectedRow();
-				int column = ptable.getSelectedColumn();
-				System.out.println("row=" + row + ":" + "column=" + column);
-				pJDialog.dispose();
 
-			}
-		});
 		pJDialog.show();
+
 	}
 	
 	public void click_close_register(){
@@ -1658,13 +1716,53 @@ public class MainForm extends JFrame implements ActionListener {
 	public Vector getretrivesaledata(){
 		System.out.println("getretrivesaledata");
 		Vector pVector = new Vector();
-		String sql="select orders_id,customer_name,topay,subtotal,tax,total,notes,operator from orders where status='0'";
+		String sql="select orders_id,customer_name,topay,subtotal,tax,total,notes,operator from orders where status='0' order by orders_id desc";
 		pVector=this.execsqlQuery(sql);
 		return pVector;
 
 		
 	}
 
+	public void loadRetriveROw2Currentsale(int r){
+		System.out.println("public void loadRetriveROw2Currentsale(int r)");
+		int rowid=r;
+		System.out.println("row_id : "+r);
+		String order_id = String.valueOf( ptable.getValueAt(rowid, 0));
+		System.out.println("order_id : "+order_id);
+		Vector Vec_order = new Vector();
+		String sql="select orders_id,customer_id,customer_name,notes,discount,gstincflag from orders where orders_id='"+order_id+"'";
+		Vec_order=this.execsqlQuery(sql);
+		if(Vec_order.size()!=1){
+			System.out.println("this order do not exists");
+			return;
+		}
+		this.initdata();
+		this.notes=String.valueOf(((Vector) Vec_order.get(0)).get(3));
+		this.discount_input=String.valueOf(((Vector) Vec_order.get(0)).get(4));
+		this.update_discount(this.discount_input);
+		this.pOrder_id=order_id;
+		this.gstincflag=Integer.parseInt(String.valueOf(((Vector) Vec_order.get(0)).get(5)));
+		System.out.println("notes,discount_input,orderid :" + this.notes +" " +this.discount_input +" " + order_id);
+		
+		Vector Vec_list= new Vector();
+		sql="select orders_goods_lists_id,orders_id,goods_id from orders_goods_lists where  orders_id='"+order_id+"'";
+		Vec_list=this.execsqlQuery(sql);
+		System.out.println("Vec_list is : " +Vec_list);
+		for(int i=0;i<Vec_list.size();i++){
+			
+			this.updatetable("goodsid",Integer.parseInt(String.valueOf(((Vector) Vec_list.get(i)).get(2))));
+			
+		}
+		
+	}
+	public void deleteorderbyid(String s){
+		String order_id=s;
+		String sql="delete from orders where orders_id='"+s+"' and status='0'";
+		this.execsqldelete(sql);
+		sql="delete from orders_goods_lists where orders_id='"+s+"'";
+		this.execsqldelete(sql);
+		
+	}
 	public static void main(String[] args) {
 		MainForm app = new MainForm();
 		app.setTitle("Test");

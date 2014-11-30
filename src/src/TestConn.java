@@ -155,7 +155,7 @@ public class TestConn {
 			conn.commit();
 
 			stmt.executeUpdate("drop table if exists 'orders'");
-			stmt.executeUpdate("create table orders(orders_id INTEGER PRIMARY KEY AUTOINCREMENT,customer_id integer,customer_name varchar(300),topay,subtotal,tax,total,notes varchar(300),discount,order_count,operator,shopid,shopname,ip,uuid,status,createtime ,modifytime timestamp)");
+			stmt.executeUpdate("create table orders(orders_id INTEGER PRIMARY KEY AUTOINCREMENT,customer_id integer,customer_name varchar(300),topay,subtotal,tax,total,notes varchar(300),discount,gstincflag,order_count,operator,shopid,shopname,ip,uuid,status,createtime ,modifytime timestamp)");
 
 			stmt.executeUpdate("drop table if exists 'orders_goods_lists'");
 			stmt.executeUpdate("create table orders_goods_lists(orders_goods_lists_id INTEGER PRIMARY KEY AUTOINCREMENT,orders_id,goods_id integer,goods_name varchar(300),all_price,goods_price,tax_price,handle varchar(100),sku varchar(100))");
