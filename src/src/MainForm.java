@@ -109,6 +109,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import src.JAutoCompleteComboBox;
+import src.TaskMain;
 
 // The main program class
 
@@ -154,6 +155,8 @@ public class MainForm extends JFrame implements ActionListener {
 		this.initForm();
 		this.searchTextFieldsetfocus();
 		this.initdata();
+		TaskMain sTaskMain=new TaskMain();
+		sTaskMain.TaskRun();
 
 	}
 
