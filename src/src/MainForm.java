@@ -156,7 +156,7 @@ public class MainForm extends JFrame implements ActionListener {
 		this.searchTextFieldsetfocus();
 		this.initdata();
 		TaskMain sTaskMain=new TaskMain();
-		sTaskMain.TaskRun();
+//		sTaskMain.TaskRun();
 
 	}
 
