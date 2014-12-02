@@ -159,6 +159,13 @@ public class TestConn {
 
 			stmt.executeUpdate("drop table if exists 'orders_goods_lists'");
 			stmt.executeUpdate("create table orders_goods_lists(orders_goods_lists_id INTEGER PRIMARY KEY AUTOINCREMENT,orders_id,goods_id integer,goods_name varchar(300),all_price,goods_price,tax_price,handle varchar(100),sku varchar(100))");
+
+			stmt.executeUpdate("drop table if exists 'taskids'");
+			stmt.executeUpdate("create table taskids(tasktype varchar(100),taskval varchar(100),modifytime timestamp)");
+			stmt.executeUpdate("insert into taskids (tasktype,taskval,modifytime) values ('TaskUploadOrders','0',datetime())");
+			stmt.executeUpdate("insert into taskids (tasktype,taskval,modifytime) values ('TaskSyncGoodsList','0',datetime())");
+
+			
 			conn.commit();
 
 			System.out.println("INSERT FINISHED");

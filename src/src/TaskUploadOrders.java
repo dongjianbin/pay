@@ -18,7 +18,7 @@ import net.sf.json.JSONObject;
 public class TaskUploadOrders extends TimerTask {
 
 	public void run() {
-		System.out.println("TaskUploadOrders");
+		System.out.println("TaskUploadOrderssssss");
 		this.execthreads();
 
 	}
@@ -39,9 +39,19 @@ public class TaskUploadOrders extends TimerTask {
 			conn.setAutoCommit(false);
 			stmt = conn.createStatement();
 			String orders_id = null;
+			String taskval = "0";
+			String sql="select taskval from taskids where tasktype='TaskUploadOrders'";
+			System.out.println(sql);
+			rset = stmt.executeQuery(sql);
+			while(rset.next()){
+
+				System.out.println("taskval is : ");
+				taskval=rset.getString("taskval");
+			}
+			System.out.println("taskval is : "+ taskval);
 			rset = stmt
 					.executeQuery("select orders_id,customer_id,customer_name ,topay,subtotal,tax,total,notes ,discount,gstincflag,order_count,operator,shopid,"
-							+ "shopname,ip,uuid,status,createtime ,modifytime from orders where status='1' limit 1");
+							+ "shopname,ip,uuid,status,createtime ,modifytime from orders where status='1' and orders_id>'"+taskval+"' limit 1");
 			while (rset.next()) {
 				orders_id = rset.getString("orders_id");
 				Map<String, String> vMap = new HashMap<String, String>();
